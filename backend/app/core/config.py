@@ -50,6 +50,8 @@ class Settings(BaseSettings):
     secret_key: str = "change-me"
     token_encryption_key: str = ""
     session_cookie_name: str = "spotule_session"
+    # Shared secret for the scheduler endpoints (/api/v1/cron/*). Empty disables them entirely.
+    cron_secret: str = ""
     session_ttl_seconds: int = 60 * 60 * 24 * 30
     cookie_secure: bool = False
 

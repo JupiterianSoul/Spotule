@@ -1,0 +1,63 @@
+# Free scheduler for deployments that have no always-on worker process.
+#
+# GitHub Actions runs this on a timer and calls Spotule's /api/v1/cron/run endpoint, which
+# logs new plays, hydrates the catalogue, awards milestones and fires due automations.
+# That covers every periodic job. The real-time skip guard is the one thing it cannot do,
+# because that needs a resident process (see docs/DEPLOYMENT.md).
+#
+# Setup — two repository secrets under Settings > Secrets and variables > Actions:
+#   SPOTULE_URL     https://your-app.example.com   (no trailing slash)
+#   SPOTULE_CRON_SECRET   the same value as CRON_SECRET in your server environment
+#
+# Two things to know about GitHub's scheduler:
+#   * five minutes is the minimum interval, and runs are best-effort — under load they can
+#     be delayed by 10+ minutes. Spotify keeps your last 50 plays, which is several hours of
+#     listening, so occasional lateness costs nothing.
+#   * on a public repository, scheduled workflows are disabled after 60 days with no commits.
+#     Push anything, or hit "Run workflow", to re-arm them.
+name: Spotule scheduler
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: spotule-scheduler
+  cancel-in-progress: false
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Trigger the periodic sweep
+        env:
+          URL: ${{ secrets.SPOTULE_URL }}
+          SECRET: ${{ secrets.SPOTULE_CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${URL:-}" ] || [ -z "${SECRET:-}" ]; then
+            echo "::error::Set the SPOTULE_URL and SPOTULE_CRON_SECRET repository secrets."
+            exit 1
+          fi
+
+          # Free hosts suspend idle services, so the first request may cold-start the app.
+          # Retry with backoff before treating it as a real failure.
+          for attempt in 1 2 3 4 5; do
+            code=$(curl -sS -o /tmp/out.json -w '%{http_code}' \
+                     --max-time 180 \
+                     -X POST "$URL/api/v1/cron/run" \
+                     -H "Authorization: Bearer $SECRET") && true
+            if [ "$code" = "200" ]; then
+              echo "Sweep completed."
+              cat /tmp/out.json
+              exit 0
+            fi
+            echo "Attempt $attempt returned HTTP ${code:-000}; waiting before retry."
+            cat /tmp/out.json 2>/dev/null || true
+            sleep $((attempt * 15))
+          done
+
+          echo "::error::Sweep failed after 5 attempts (last status ${code:-000})."
+          exit 1

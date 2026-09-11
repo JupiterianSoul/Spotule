@@ -56,20 +56,26 @@ cd frontend && pnpm install && pnpm dev
 
 Tests & lint: `make test` · `make lint`. API docs: <http://127.0.0.1:8000/api/docs>.
 
-## Deploying to a real domain
+## Deploying to a real domain, for free
 
-Spotule cannot run on GitHub Pages: it needs a server for the OAuth secret, Postgres, Redis and
-a worker running 24/7 so listening history keeps recording while the site is closed. The shortest
-path to a public URL is a small VPS:
+Every periodic job (the lifetime stream logger, catalogue hydration, milestones, weekly backups)
+is exposed at `POST /api/v1/cron/run`, so a free external scheduler can drive the whole tracking
+engine with no always-on worker. `.github/workflows/scheduler.yml` does this with GitHub Actions.
 
-```bash
-make setup && echo "DOMAIN=spotule.example.com" >> .env
-make deploy     # Caddy fetches a TLS certificate automatically
-```
+Two free routes, both documented in [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md):
 
-Everything is served from one origin, which keeps the session cookie first-party and working in
-every browser. See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for the full topology, managed-platform
-alternatives and the production checklist.
+- **A VM that never sleeps** (Oracle Cloud Always Free, Google Cloud `e2-micro`, a Pi) runs the
+  whole stack and keeps every feature, including the real-time skip guard:
+  ```bash
+  make setup && echo "DOMAIN=spotule.duckdns.org" >> .env
+  make deploy     # Caddy fetches a TLS certificate automatically
+  ```
+- **Render + Supabase + Upstash + GitHub Actions** needs no VM and no card. You keep the tracking
+  engine and lose only the skip guard, which needs a resident process. `render.yaml` is a blueprint.
+
+GitHub Pages cannot host Spotule at all: no server for the OAuth secret, no database, no
+scheduler. Cloudflare Workers cannot run the Python backend either, though Cloudflare is a fine
+free CDN and cron trigger in front of it.
 
 ## Documentation
 

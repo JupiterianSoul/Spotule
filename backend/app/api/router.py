@@ -1,6 +1,16 @@
 from fastapi import APIRouter
 
-from app.api.v1 import auth, automations, banhammer, imports, me, playlists, stats, tools
+from app.api.v1 import (
+    auth,
+    automations,
+    banhammer,
+    cron,
+    imports,
+    me,
+    playlists,
+    stats,
+    tools,
+)
 
 api_router = APIRouter(prefix="/api/v1")
 for r in (
@@ -12,5 +22,6 @@ for r in (
     imports.router,
     tools.router,
     automations.router,
+    cron.router,
 ):
     api_router.include_router(r)

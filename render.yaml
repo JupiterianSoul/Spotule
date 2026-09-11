@@ -1,0 +1,72 @@
+# Render blueprint for a no-cost Spotule deployment.
+#
+# Deliberately does NOT declare a Postgres or Redis instance: free managed databases on most
+# platforms expire after a trial window, so point DATABASE_URL at Supabase or Neon and
+# REDIS_URL at Upstash instead — those free tiers do not expire. See docs/DEPLOYMENT.md.
+#
+# There is also no Celery worker here, because background workers are a paid instance type on
+# most platforms. The periodic jobs run through /api/v1/cron/run instead, driven by the
+# GitHub Actions workflow in .github/workflows/scheduler.yml. The real-time skip guard is the
+# only feature this costs you; everything else, including the lifetime stream logger, works.
+#
+# Every `sync: false` variable is prompted for in the dashboard on first deploy and never
+# stored in git. Field names occasionally change between platform versions — if the blueprint
+# is rejected, the dashboard error names the offending key.
+services:
+  - type: web
+    name: spotule-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    dockerCommand: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /healthz
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: COOKIE_SECURE
+        value: "true"
+      # Secrets and connection strings — filled in from the dashboard.
+      - key: SPOTIFY_CLIENT_ID
+        sync: false
+      - key: SPOTIFY_CLIENT_SECRET
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      # Must be a Fernet key, so it cannot be auto-generated. Create one with:
+      #   python -c "from cryptography.fernet import Fernet;print(Fernet.generate_key().decode())"
+      # Back it up: lose it and every stored Spotify token becomes undecryptable.
+      - key: TOKEN_ENCRYPTION_KEY
+        sync: false
+      - key: CRON_SECRET
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_URL_SYNC
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      # Set all three to the PUBLIC URL of spotule-web once it exists.
+      - key: WEB_BASE_URL
+        sync: false
+      - key: API_BASE_URL
+        sync: false
+      - key: SPOTIFY_REDIRECT_URI
+        sync: false
+
+  - type: web
+    name: spotule-web
+    runtime: docker
+    plan: free
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Empty on purpose: the browser calls /api/* on this same origin, which keeps the
+      # session cookie first-party. Never point the browser directly at the API host.
+      - key: NEXT_PUBLIC_API_BASE_URL
+        value: ""
+      # The public URL of spotule-api. This hop is server-to-server only.
+      - key: API_INTERNAL_URL
+        sync: false
