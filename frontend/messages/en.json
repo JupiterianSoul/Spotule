@@ -1,0 +1,203 @@
+{
+  "app": { "name": "SpotiMax", "tagline": "Your Spotify control center & lifetime tracker." },
+  "common": {
+    "loading": "Loading…",
+    "error": "Something went wrong.",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "run": "Run",
+    "dryRun": "Preview (dry run)",
+    "close": "Close",
+    "search": "Search",
+    "all": "All",
+    "none": "None",
+    "yes": "Yes",
+    "no": "No",
+    "minutes": "{count, plural, one {# minute} other {# minutes}}",
+    "streams": "{count, plural, one {# stream} other {# streams}}",
+    "tracks": "{count, plural, one {# track} other {# tracks}}",
+    "comingSoon": "Coming soon"
+  },
+  "locale": { "switch": "Language", "en": "English", "fr": "Français" },
+  "auth": {
+    "signIn": "Sign in with Spotify",
+    "signOut": "Sign out",
+    "welcome": "Welcome, {name}",
+    "premiumRequired": "Spotify Premium is required for playback control.",
+    "errorDenied": "Spotify sign-in was cancelled."
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "stats": "Stats",
+    "banHammer": "Ban-Hammer",
+    "tools": "Tools",
+    "imports": "Import history",
+    "automations": "Automations",
+    "friends": "Friends",
+    "settings": "Settings"
+  },
+  "landing": {
+    "title": "Every stream. Every genre you never want to hear again.",
+    "subtitle": "Lifetime listening history beyond Spotify's 50-track limit, Stats.fm-style dashboards, a real-time genre ban-hammer and 100+ playlist tools — for you and your friends, each with a private library.",
+    "cta": "Sign in with Spotify",
+    "pillars": {
+      "tracking": { "title": "Tracking engine", "body": "Background logger + official data-export importer build an immutable history." },
+      "banhammer": { "title": "Ban-Hammer", "body": "Blacklist genres; purge your library; auto-skip within 500 ms." },
+      "tools": { "title": "Playlist tools", "body": "True shuffle, blender, splitter, sonic filters, bulk commander, porter." },
+      "friends": { "title": "Friends", "body": "Compare your listening with friends who opt in." }
+    }
+  },
+  "timeframe": {
+    "label": "Timeframe",
+    "4w": "Last 4 weeks",
+    "6m": "Last 6 months",
+    "1y": "Last year",
+    "lifetime": "Lifetime",
+    "custom": "Custom range",
+    "from": "From",
+    "to": "To"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "overview": "Overview",
+    "minutesListened": "Minutes listened",
+    "streams": "Streams",
+    "uniqueTracks": "Unique tracks",
+    "uniqueArtists": "Unique artists",
+    "skips": "Skips",
+    "topTracks": "Top tracks",
+    "topArtists": "Top artists",
+    "topAlbums": "Top albums",
+    "topGenres": "Top genres",
+    "listeningClock": "Listening clock",
+    "recentMilestones": "Recent milestones",
+    "guardStatus": "Skip guard",
+    "guardOn": "Active",
+    "guardOff": "Off",
+    "loggerStatus": "Stream logger",
+    "lastSync": "Last sync {time}",
+    "viewAll": "View all"
+  },
+  "stats": {
+    "title": "Stats",
+    "tabs": { "tracks": "Tracks", "artists": "Artists", "albums": "Albums", "genres": "Genres", "clock": "Clock", "milestones": "Milestones", "leaderboard": "Leaderboard" },
+    "clock": {
+      "title": "When you listen",
+      "hours": "Hour of day",
+      "days": "Day of week",
+      "peak": "Peak: {day} at {hour}h",
+      "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    },
+    "milestones": {
+      "title": "Milestones",
+      "total_minutes": "{value, number} minutes of listening",
+      "total_streams": "{value, number} streams",
+      "artist_streams": "{entity} played {value, number} times",
+      "track_streams": "{entity} played {value, number} times",
+      "unique_artists": "{value, number} different artists",
+      "unique_tracks": "{value, number} different tracks",
+      "empty": "No milestones yet — keep listening!"
+    },
+    "leaderboard": {
+      "title": "Leaderboard",
+      "friends": "Friends",
+      "global": "Everyone (opt-in)",
+      "metric": { "minutes": "Minutes", "streams": "Streams" },
+      "you": "You",
+      "empty": "Add friends to compare your stats."
+    },
+    "empty": "No listening data for this timeframe yet.",
+    "rank": "#{rank}"
+  },
+  "banhammer": {
+    "title": "Anti-Genre Ban-Hammer",
+    "subtitle": "Genres you ban here are removed from your library on demand and skipped instantly while playing.",
+    "registry": "Global blacklist registry",
+    "addRule": "Ban a genre",
+    "pattern": "Genre pattern",
+    "patternHint": "e.g. rap, hip hop, trap — “contains” also catches “french rap”",
+    "matchMode": "Match",
+    "modes": { "contains": "Contains", "exact": "Exact", "regex": "Regex" },
+    "applySkip": "Skip guard",
+    "applyPurge": "Library purge",
+    "ruleExists": "This rule already exists.",
+    "exemptions": "Exemptions",
+    "exemptionsHint": "Artists, albums or tracks that are always allowed.",
+    "purge": {
+      "title": "Library purger",
+      "subtitle": "Scan Liked Songs or a playlist and remove every blacklisted track. A backup is taken first.",
+      "target": "Target",
+      "likedSongs": "Liked Songs",
+      "playlist": "Playlist",
+      "scan": "Scan (preview)",
+      "execute": "Remove {count} tracks",
+      "scanned": "Scanned",
+      "matched": "Matched",
+      "removed": "Removed",
+      "status": { "queued": "Queued", "running": "Running", "succeeded": "Done", "failed": "Failed" }
+    },
+    "guard": {
+      "title": "Real-time skip guard",
+      "subtitle": "Watches your active device (phone, desktop, web) and skips blacklisted genres within 500 ms.",
+      "enable": "Enable skip guard",
+      "premiumRequired": "Requires Spotify Premium.",
+      "recentSkips": "Recent skips",
+      "latency": "{ms} ms",
+      "device": "Device",
+      "noSkips": "Nothing skipped yet."
+    }
+  },
+  "tools": {
+    "title": "Tools",
+    "subtitle": "Playlist compactor, utilities and automations.",
+    "pillars": { "playlists": "Playlists", "bulk": "Bulk commander", "sonic": "Sonic filters", "backup": "Backups", "porter": "Audio porter", "library": "Library" },
+    "destructive": "Modifies your library — a backup is taken first",
+    "premium": "Premium",
+    "runs": "Recent runs",
+    "progress": "{pct}%",
+    "open": "Open"
+  },
+  "imports": {
+    "title": "Import your lifetime history",
+    "subtitle": "Request “Extended streaming history” at spotify.com/account/privacy, then upload the ZIP here.",
+    "drop": "Drop the ZIP file or click to choose",
+    "upload": "Upload",
+    "jobs": "Imports",
+    "rows": "{inserted, number} rows imported · {dupes, number} duplicates skipped",
+    "range": "{from} → {to}",
+    "status": { "queued": "Queued", "running": "Parsing…", "succeeded": "Done", "failed": "Failed" }
+  },
+  "automations": {
+    "title": "Automations",
+    "subtitle": "Recurring jobs run by the worker on your schedule.",
+    "kinds": {
+      "backup_discover_weekly": "Back up Discover Weekly every Monday",
+      "backup_release_radar": "Back up Release Radar every Friday",
+      "weekly_report": "Weekly listening report",
+      "liked_songs_snapshot": "Snapshot Liked Songs",
+      "auto_purge": "Auto-purge blacklisted genres",
+      "playlist_archive_monthly": "Monthly playlist archive",
+      "sync_playlists": "Sync playlists mirror"
+    },
+    "enabled": "Enabled",
+    "schedule": "Schedule (cron)",
+    "lastRun": "Last run",
+    "nextRun": "Next run"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "timezone": "Timezone",
+    "timezoneHint": "Used for listening clocks.",
+    "privacy": "Privacy",
+    "shareFriends": "Share my stats with friends",
+    "shareGlobal": "Appear on the global leaderboard",
+    "logger": "Background stream logger",
+    "danger": "Danger zone",
+    "deleteAccount": "Delete my account and all data",
+    "deleteConfirm": "This permanently deletes your streams, backups and tokens. Continue?"
+  }
+}

@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+/* ── SpotiMax "Spotify Dark Mode" design tokens ─────────────────────────────
+   Tailwind v4: tokens declared here become utilities (bg-surface, text-accent…). */
+@theme {
+  --color-bg: #121212;          /* Spotify canvas */
+  --color-bg-elevated: #181818; /* cards */
+  --color-surface: #212121;     /* inputs, hover */
+  --color-surface-2: #2a2a2a;
+  --color-border: #2e2e2e;
+  --color-fg: #ffffff;
+  --color-fg-muted: #b3b3b3;
+  --color-fg-subtle: #6a6a6a;
+  --color-accent: #1db954;      /* Spotify green */
+  --color-accent-hover: #1ed760;
+  --color-accent-fg: #000000;
+  --color-danger: #f15e6c;
+  --color-warning: #ffa42b;
+  --color-info: #509bf5;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --radius-card: 0.75rem;
+  --shadow-card: 0 8px 24px rgb(0 0 0 / 0.5);
+}
+
+:root { color-scheme: dark; }
+
+html, body { background: var(--color-bg); color: var(--color-fg); min-height: 100dvh; }
+body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+* { scrollbar-width: thin; scrollbar-color: var(--color-surface-2) transparent; }
+
+/* Android/PC: ensure tap targets and safe areas */
+@media (max-width: 767px) {
+  .pb-safe { padding-bottom: calc(env(safe-area-inset-bottom) + 4.25rem); }
+}
+
+/* Tailwind v4: reusable component classes must be declared with @utility to be @apply-able */
+@utility card { @apply bg-bg-elevated rounded-card border border-border p-4 md:p-5; }
+@utility btn { @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed; }
+@utility btn-primary { @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-accent text-accent-fg hover:bg-accent-hover; }
+@utility btn-ghost { @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-transparent text-fg-muted hover:bg-surface hover:text-fg; }
+@utility btn-danger { @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-danger/15 text-danger hover:bg-danger/25; }
+@utility input { @apply w-full rounded-md bg-surface border border-border px-3 py-2 text-sm text-fg placeholder:text-fg-subtle focus:outline-none focus:ring-2 focus:ring-accent/60; }
+@utility chip { @apply inline-flex items-center rounded-full bg-surface px-3 py-1 text-xs font-medium text-fg-muted; }
+@utility chip-active { @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-fg text-bg; }

@@ -1,0 +1,9 @@
+{
+  "name": "SpotiMax",
+  "short_name": "SpotiMax",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#1db954",
+  "start_url": "/",
+  "icons": []
+}

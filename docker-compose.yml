@@ -1,0 +1,82 @@
+# SpotiMax local stack: Postgres + Redis + API + workers + web
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: spotimax
+      POSTGRES_PASSWORD: spotimax
+      POSTGRES_DB: spotimax
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U spotimax"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports: ["6379:6379"]
+    volumes: ["redisdata:/data"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./backend
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://spotimax:spotimax@postgres:5432/spotimax
+      DATABASE_URL_SYNC: postgresql+psycopg://spotimax:spotimax@postgres:5432/spotimax
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    ports: ["8000:8000"]
+    volumes: ["uploads:/app/uploads"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+
+  worker:
+    build: ./backend
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://spotimax:spotimax@postgres:5432/spotimax
+      DATABASE_URL_SYNC: postgresql+psycopg://spotimax:spotimax@postgres:5432/spotimax
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+    # Two queues: "realtime" (skip guard, low latency) and "default" (ingest, imports, tools)
+    command: celery -A app.workers.celery_app:celery_app worker -Q realtime,default -l info --concurrency=4
+    volumes: ["uploads:/app/uploads"]
+    depends_on: [api]
+
+  beat:
+    build: ./backend
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://spotimax:spotimax@postgres:5432/spotimax
+      DATABASE_URL_SYNC: postgresql+psycopg://spotimax:spotimax@postgres:5432/spotimax
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+    command: celery -A app.workers.celery_app:celery_app beat -l info
+    depends_on: [worker]
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://127.0.0.1:8000
+    env_file: .env
+    ports: ["3000:3000"]
+    depends_on: [api]
+
+volumes:
+  pgdata:
+  redisdata:
+  uploads:

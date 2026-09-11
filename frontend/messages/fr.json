@@ -1,0 +1,203 @@
+{
+  "app": { "name": "SpotiMax", "tagline": "Votre centre de contrôle Spotify et traqueur d'écoute à vie." },
+  "common": {
+    "loading": "Chargement…",
+    "error": "Une erreur est survenue.",
+    "retry": "Réessayer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "confirm": "Confirmer",
+    "run": "Lancer",
+    "dryRun": "Aperçu (simulation)",
+    "close": "Fermer",
+    "search": "Rechercher",
+    "all": "Tout",
+    "none": "Aucun",
+    "yes": "Oui",
+    "no": "Non",
+    "minutes": "{count, plural, one {# minute} other {# minutes}}",
+    "streams": "{count, plural, one {# écoute} other {# écoutes}}",
+    "tracks": "{count, plural, one {# titre} other {# titres}}",
+    "comingSoon": "Bientôt disponible"
+  },
+  "locale": { "switch": "Langue", "en": "English", "fr": "Français" },
+  "auth": {
+    "signIn": "Se connecter avec Spotify",
+    "signOut": "Se déconnecter",
+    "welcome": "Bienvenue, {name}",
+    "premiumRequired": "Spotify Premium est requis pour contrôler la lecture.",
+    "errorDenied": "La connexion Spotify a été annulée."
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "stats": "Statistiques",
+    "banHammer": "Ban-Hammer",
+    "tools": "Outils",
+    "imports": "Importer l'historique",
+    "automations": "Automatisations",
+    "friends": "Amis",
+    "settings": "Paramètres"
+  },
+  "landing": {
+    "title": "Chaque écoute. Chaque genre que vous ne voulez plus jamais entendre.",
+    "subtitle": "Un historique d'écoute à vie au-delà de la limite de 50 titres de Spotify, des tableaux de bord façon Stats.fm, un ban-hammer de genres en temps réel et plus de 100 outils de playlists — pour vous et vos amis, chacun avec sa bibliothèque privée.",
+    "cta": "Se connecter avec Spotify",
+    "pillars": {
+      "tracking": { "title": "Moteur de suivi", "body": "Enregistreur en arrière-plan + import de l'export officiel pour un historique immuable." },
+      "banhammer": { "title": "Ban-Hammer", "body": "Bannissez des genres, purgez votre bibliothèque, sautez automatiquement en moins de 500 ms." },
+      "tools": { "title": "Outils de playlists", "body": "Vrai mélange, mixeur, découpeur, filtres soniques, commandes en masse, portage." },
+      "friends": { "title": "Amis", "body": "Comparez vos écoutes avec les amis qui l'acceptent." }
+    }
+  },
+  "timeframe": {
+    "label": "Période",
+    "4w": "4 dernières semaines",
+    "6m": "6 derniers mois",
+    "1y": "Dernière année",
+    "lifetime": "Depuis toujours",
+    "custom": "Période personnalisée",
+    "from": "Du",
+    "to": "Au"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "overview": "Vue d'ensemble",
+    "minutesListened": "Minutes écoutées",
+    "streams": "Écoutes",
+    "uniqueTracks": "Titres uniques",
+    "uniqueArtists": "Artistes uniques",
+    "skips": "Sauts",
+    "topTracks": "Top titres",
+    "topArtists": "Top artistes",
+    "topAlbums": "Top albums",
+    "topGenres": "Top genres",
+    "listeningClock": "Horloge d'écoute",
+    "recentMilestones": "Jalons récents",
+    "guardStatus": "Garde anti-genre",
+    "guardOn": "Active",
+    "guardOff": "Désactivée",
+    "loggerStatus": "Enregistreur d'écoutes",
+    "lastSync": "Dernière synchro {time}",
+    "viewAll": "Tout voir"
+  },
+  "stats": {
+    "title": "Statistiques",
+    "tabs": { "tracks": "Titres", "artists": "Artistes", "albums": "Albums", "genres": "Genres", "clock": "Horloge", "milestones": "Jalons", "leaderboard": "Classement" },
+    "clock": {
+      "title": "Quand vous écoutez",
+      "hours": "Heure de la journée",
+      "days": "Jour de la semaine",
+      "peak": "Pic : {day} à {hour} h",
+      "weekdays": ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
+    },
+    "milestones": {
+      "title": "Jalons",
+      "total_minutes": "{value, number} minutes d'écoute",
+      "total_streams": "{value, number} écoutes",
+      "artist_streams": "{entity} écouté {value, number} fois",
+      "track_streams": "{entity} écouté {value, number} fois",
+      "unique_artists": "{value, number} artistes différents",
+      "unique_tracks": "{value, number} titres différents",
+      "empty": "Aucun jalon pour l'instant — continuez d'écouter !"
+    },
+    "leaderboard": {
+      "title": "Classement",
+      "friends": "Amis",
+      "global": "Tout le monde (volontaires)",
+      "metric": { "minutes": "Minutes", "streams": "Écoutes" },
+      "you": "Vous",
+      "empty": "Ajoutez des amis pour comparer vos statistiques."
+    },
+    "empty": "Aucune donnée d'écoute pour cette période.",
+    "rank": "n°{rank}"
+  },
+  "banhammer": {
+    "title": "Ban-Hammer anti-genre",
+    "subtitle": "Les genres bannis ici sont retirés de votre bibliothèque à la demande et sautés instantanément pendant la lecture.",
+    "registry": "Registre global de la liste noire",
+    "addRule": "Bannir un genre",
+    "pattern": "Motif de genre",
+    "patternHint": "ex. rap, hip hop, trap — « contient » attrape aussi « rap français »",
+    "matchMode": "Correspondance",
+    "modes": { "contains": "Contient", "exact": "Exact", "regex": "Regex" },
+    "applySkip": "Garde de saut",
+    "applyPurge": "Purge de bibliothèque",
+    "ruleExists": "Cette règle existe déjà.",
+    "exemptions": "Exceptions",
+    "exemptionsHint": "Artistes, albums ou titres toujours autorisés.",
+    "purge": {
+      "title": "Purgeur de bibliothèque",
+      "subtitle": "Analyse vos Titres likés ou une playlist et retire chaque titre banni. Une sauvegarde est faite avant.",
+      "target": "Cible",
+      "likedSongs": "Titres likés",
+      "playlist": "Playlist",
+      "scan": "Analyser (aperçu)",
+      "execute": "Retirer {count} titres",
+      "scanned": "Analysés",
+      "matched": "Détectés",
+      "removed": "Retirés",
+      "status": { "queued": "En attente", "running": "En cours", "succeeded": "Terminé", "failed": "Échec" }
+    },
+    "guard": {
+      "title": "Garde de saut en temps réel",
+      "subtitle": "Surveille votre appareil actif (téléphone, ordinateur, web) et saute les genres bannis en moins de 500 ms.",
+      "enable": "Activer la garde",
+      "premiumRequired": "Nécessite Spotify Premium.",
+      "recentSkips": "Sauts récents",
+      "latency": "{ms} ms",
+      "device": "Appareil",
+      "noSkips": "Rien de sauté pour l'instant."
+    }
+  },
+  "tools": {
+    "title": "Outils",
+    "subtitle": "Compacteur de playlists, utilitaires et automatisations.",
+    "pillars": { "playlists": "Playlists", "bulk": "Commandes en masse", "sonic": "Filtres soniques", "backup": "Sauvegardes", "porter": "Portage audio", "library": "Bibliothèque" },
+    "destructive": "Modifie votre bibliothèque — une sauvegarde est faite avant",
+    "premium": "Premium",
+    "runs": "Exécutions récentes",
+    "progress": "{pct} %",
+    "open": "Ouvrir"
+  },
+  "imports": {
+    "title": "Importer votre historique complet",
+    "subtitle": "Demandez « Historique d'écoute étendu » sur spotify.com/account/privacy, puis téléversez le ZIP ici.",
+    "drop": "Déposez le fichier ZIP ou cliquez pour choisir",
+    "upload": "Téléverser",
+    "jobs": "Imports",
+    "rows": "{inserted, number} lignes importées · {dupes, number} doublons ignorés",
+    "range": "{from} → {to}",
+    "status": { "queued": "En attente", "running": "Analyse…", "succeeded": "Terminé", "failed": "Échec" }
+  },
+  "automations": {
+    "title": "Automatisations",
+    "subtitle": "Tâches récurrentes exécutées par le worker selon votre planning.",
+    "kinds": {
+      "backup_discover_weekly": "Sauvegarder Discover Weekly chaque lundi",
+      "backup_release_radar": "Sauvegarder Radar des sorties chaque vendredi",
+      "weekly_report": "Rapport d'écoute hebdomadaire",
+      "liked_songs_snapshot": "Instantané des Titres likés",
+      "auto_purge": "Purge automatique des genres bannis",
+      "playlist_archive_monthly": "Archive mensuelle des playlists",
+      "sync_playlists": "Synchroniser le miroir des playlists"
+    },
+    "enabled": "Activée",
+    "schedule": "Planning (cron)",
+    "lastRun": "Dernière exécution",
+    "nextRun": "Prochaine exécution"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "language": "Langue",
+    "timezone": "Fuseau horaire",
+    "timezoneHint": "Utilisé pour les horloges d'écoute.",
+    "privacy": "Confidentialité",
+    "shareFriends": "Partager mes statistiques avec mes amis",
+    "shareGlobal": "Apparaître dans le classement global",
+    "logger": "Enregistreur d'écoutes en arrière-plan",
+    "danger": "Zone de danger",
+    "deleteAccount": "Supprimer mon compte et toutes mes données",
+    "deleteConfirm": "Cela supprime définitivement vos écoutes, sauvegardes et jetons. Continuer ?"
+  }
+}
