@@ -14,14 +14,22 @@ Stats.fm-style tracking engine — for you *and* your friends, each with an isol
 
 ## Quick start
 
+Create a Spotify app at <https://developer.spotify.com/dashboard> and add this exact Redirect URI:
+
+```
+http://127.0.0.1:8000/api/v1/auth/callback
+```
+
+Then:
+
 ```bash
-cp .env.example .env            # fill SPOTIFY_CLIENT_ID / SECRET, generate SECRET_KEY + TOKEN_ENCRYPTION_KEY
+make setup                      # asks for your client id/secret, generates all other secrets
 docker compose up --build       # postgres, redis, api (:8000), worker, beat, web (:3000)
 ```
 
-Register `http://127.0.0.1:8000/api/v1/auth/callback` as a Redirect URI on your Spotify app,
-then open <http://127.0.0.1:3000/en> (or `/fr`). While the Spotify app is in *Development mode*
-each friend must be added under **User Management** on the Spotify developer dashboard (max 25).
+Open <http://127.0.0.1:3000/en> (or `/fr`). While the Spotify app is in *Development mode*,
+each friend must be added by name + email under **User Management** on the Spotify developer
+dashboard (max 25 users) before they can sign in.
 
 ### Local development (no Docker)
 

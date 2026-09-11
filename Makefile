@@ -1,4 +1,7 @@
-.PHONY: up down logs api web worker migrate revision test lint
+.PHONY: setup up down logs api web worker migrate revision test lint
+
+setup:         ## First run: generate .env (asks for your Spotify client id/secret)
+	bash scripts/setup.sh
 
 up:            ## Start the whole stack
 	docker compose up --build -d
