@@ -58,6 +58,8 @@ class Settings(BaseSettings):
     # Stores
     database_url: str = "postgresql+asyncpg://spotule:spotule@localhost:5432/spotule"
     database_url_sync: str = "postgresql+psycopg://spotule:spotule@localhost:5432/spotule"
+    # "auto" detects Supabase/PgBouncer style URLs; force with "on" or "off".
+    db_pooler_mode: str = "auto"
     redis_url: str = "redis://localhost:6379/0"
     celery_broker_url: str = "redis://localhost:6379/1"
     celery_result_backend: str = "redis://localhost:6379/2"

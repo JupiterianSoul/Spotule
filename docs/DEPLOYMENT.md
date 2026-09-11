@@ -74,6 +74,8 @@ home behind a tunnel, or a €4/month VPS if you would rather not fight Oracle's
 ## Free option B — Render + Supabase + Upstash + GitHub Actions
 
 No VM, no card, but you lose the skip guard and accept cold starts.
+**A full click-by-click walkthrough lives in [HOSTED_SETUP.md](HOSTED_SETUP.md);** the summary
+below is the shape of it.
 
 1. **Postgres**: create a free Supabase (or Neon) project. Copy the connection string twice:
    - `DATABASE_URL` → change the scheme to `postgresql+asyncpg://`

@@ -71,7 +71,9 @@ Two free routes, both documented in [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md):
   make deploy     # Caddy fetches a TLS certificate automatically
   ```
 - **Render + Supabase + Upstash + GitHub Actions** needs no VM and no card. You keep the tracking
-  engine and lose only the skip guard, which needs a resident process. `render.yaml` is a blueprint.
+  engine and lose only the skip guard, which needs a resident process. Step by step:
+  [`docs/HOSTED_SETUP.md`](docs/HOSTED_SETUP.md), starting with
+  `bash scripts/render-secrets.sh` to generate every value you will paste.
 
 GitHub Pages cannot host Spotule at all: no server for the OAuth secret, no database, no
 scheduler. Cloudflare Workers cannot run the Python backend either, though Cloudflare is a fine
@@ -84,6 +86,7 @@ free CDN and cron trigger in front of it.
 - [`docs/TECHNICAL_PLAN.md`](docs/TECHNICAL_PLAN.md) — step-by-step build plan, milestones, Spotify API caveats
 - [`docs/FEATURE_MATRIX.md`](docs/FEATURE_MATRIX.md) — the 100+ micro-features and where each lives in the code
 - [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — putting Spotule on a public domain
+- [`docs/HOSTED_SETUP.md`](docs/HOSTED_SETUP.md) — the free Render + Supabase + Upstash walkthrough
 
 ## Repository layout
 
