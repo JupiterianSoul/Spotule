@@ -5,7 +5,9 @@
     "spotify_not_linked": "Votre compte Spotify n'est pas lié.",
     "forbidden": "Vous n'avez pas la permission de faire cela."
   },
-  "auth": { "logged_out": "Déconnecté." },
+  "auth": {
+    "logged_out": "Déconnecté."
+  },
   "banhammer": {
     "rule_exists": "Cette règle de genre existe déjà.",
     "premium_required": "Spotify Premium est requis pour contrôler la lecture."
@@ -16,17 +18,54 @@
   },
   "tools": {
     "unknown": "Outil inconnu.",
-    "playlist.true_shuffle": { "title": "Vrai Mélangeur", "description": "Mélange uniforme (Fisher–Yates) de toute la playlist, en espaçant les artistes si souhaité." },
-    "playlist.blend": { "title": "Le Mixeur", "description": "Fusionne jusqu'à 10 playlists en une seule, entrelacées ou à la suite, sans doublons." },
-    "playlist.split": { "title": "Le Découpeur", "description": "Découpe une playlist géante en volumes numérotés." },
-    "bulk.delete_playlists": { "title": "Suppression en masse", "description": "Supprime plusieurs playlists d'un coup (une sauvegarde est faite avant)." },
-    "bulk.unfollow_artists": { "title": "Désabonnement en masse", "description": "Ne plus suivre des artistes en lot." },
-    "bulk.update_descriptions": { "title": "Descriptions par lot", "description": "Applique un modèle de description à plusieurs playlists." },
-    "bulk.dedupe_playlist": { "title": "Dédoublonneur", "description": "Supprime les titres en double (par ISRC ou URI)." },
-    "sonic.filter": { "title": "Filtre Sonique", "description": "Crée une playlist selon des plages de BPM, d'énergie, de valence et d'acoustique." },
-    "backup.playlist": { "title": "Sauvegarde de playlist", "description": "Capture Discover Weekly, Radar des sorties ou toute playlist." },
-    "backup.restore": { "title": "Restaurer une sauvegarde", "description": "Restaure un instantané dans une playlist." },
-    "porter.text_to_playlist": { "title": "Portage audio", "description": "Collez des lignes « Artiste - Titre » depuis Apple/YouTube Music et recréez-les sur Spotify." }
+    "playlist.true_shuffle": {
+      "title": "Vrai Mélangeur",
+      "description": "Mélange uniforme (Fisher–Yates) de toute la playlist, en espaçant les artistes si souhaité."
+    },
+    "playlist.blend": {
+      "title": "Le Mixeur",
+      "description": "Fusionne jusqu'à 10 playlists en une seule, entrelacées ou à la suite, sans doublons."
+    },
+    "playlist.split": {
+      "title": "Le Découpeur",
+      "description": "Découpe une playlist géante en volumes numérotés."
+    },
+    "bulk.delete_playlists": {
+      "title": "Suppression en masse",
+      "description": "Supprime plusieurs playlists d'un coup (une sauvegarde est faite avant)."
+    },
+    "bulk.unfollow_artists": {
+      "title": "Désabonnement en masse",
+      "description": "Ne plus suivre des artistes en lot."
+    },
+    "bulk.update_descriptions": {
+      "title": "Descriptions par lot",
+      "description": "Applique un modèle de description à plusieurs playlists."
+    },
+    "bulk.dedupe_playlist": {
+      "title": "Dédoublonneur",
+      "description": "Supprime les titres en double (par ISRC ou URI)."
+    },
+    "sonic.filter": {
+      "title": "Filtre Sonique",
+      "description": "Crée une playlist selon des plages de BPM, d'énergie, de valence et d'acoustique."
+    },
+    "backup.playlist": {
+      "title": "Sauvegarde de playlist",
+      "description": "Capture Discover Weekly, Radar des sorties ou toute playlist."
+    },
+    "backup.restore": {
+      "title": "Restaurer une sauvegarde",
+      "description": "Restaure un instantané dans une playlist."
+    },
+    "porter.text_to_playlist": {
+      "title": "Portage audio",
+      "description": "Collez des lignes « Artiste - Titre » depuis Apple/YouTube Music et recréez-les sur Spotify."
+    },
+    "backup.liked_songs": {
+      "title": "Sauvegarde des Titres likés",
+      "description": "Capture tous vos Titres likés pour pouvoir annuler une purge."
+    }
   },
   "milestones": {
     "total_minutes": "{value} minutes d'écoute",

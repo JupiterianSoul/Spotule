@@ -107,15 +107,15 @@ everything is connected.
 ## 8. Verify
 
 ```bash
-curl https://<spotule-api>.onrender.com/healthz
-# {"ok":true,"env":"production"}
-
-curl https://<spotule-web>.onrender.com/healthz
-# {"ok":true,"web":true,"api":true}      <- the web service can reach the API
+CRON_SECRET=<your cron secret> \
+  bash scripts/smoke-test.sh https://<spotule-web>.onrender.com https://<spotule-api>.onrender.com
 ```
 
-Then open the web URL, switch between English and French, and sign in with Spotify. Play
-something, wait for the scheduler to run, and check that the dashboard's stream count moves.
+Twelve checks: reachability, whether the web service can reach the API, the proxy, both
+languages, the signed-out 401, the Spotify redirect, and the scheduler with and without
+credentials. It finishes by listing the five things only you can confirm in a browser.
+
+The first run may take a minute while the free services cold-start.
 
 ## What to expect day to day
 

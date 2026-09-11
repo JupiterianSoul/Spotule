@@ -79,6 +79,16 @@ GitHub Pages cannot host Spotule at all: no server for the OAuth secret, no data
 scheduler. Cloudflare Workers cannot run the Python backend either, though Cloudflare is a fine
 free CDN and cron trigger in front of it.
 
+## Testing a deployment
+
+```bash
+bash scripts/smoke-test.sh https://your-app.onrender.com          # 12 automated checks
+CRON_SECRET=… bash scripts/smoke-test.sh https://your-app…        # also exercises the scheduler
+```
+
+It checks reachability, the API proxy, both languages, the auth guard, the Spotify redirect and
+the scheduler, then prints the short list of things only a human with a browser can confirm.
+
 ## Documentation
 
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — folder structure, request/worker flows, multi-tenancy, rate limiting, i18n
@@ -87,6 +97,7 @@ free CDN and cron trigger in front of it.
 - [`docs/FEATURE_MATRIX.md`](docs/FEATURE_MATRIX.md) — the 100+ micro-features and where each lives in the code
 - [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — putting Spotule on a public domain
 - [`docs/HOSTED_SETUP.md`](docs/HOSTED_SETUP.md) — the free Render + Supabase + Upstash walkthrough
+- [`docs/STATUS.md`](docs/STATUS.md) — what works, what is half-built, what has never run against real Spotify
 
 ## Repository layout
 

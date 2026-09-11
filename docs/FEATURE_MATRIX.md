@@ -1,6 +1,10 @@
 # Spotule — Feature Matrix (100+ micro-features)
 
-Status legend: ✅ implemented in this scaffold · 🧩 scaffolded (model/registry/route exists, logic to fill) · 📝 planned (one file in `services/tools/` + 2 locale strings)
+Status legend: ✅ implemented and covered by tests or a live check · 🧩 scaffolded (model/registry/route exists, logic to fill) · 📝 planned (one file in `services/tools/` + 2 locale strings)
+
+Rows marked 🧩 or 📝 are not working features. The honest summary is in
+[`docs/STATUS.md`](STATUS.md), which lists what is finished, what is half-built, and what is
+untested because it needs real Spotify credentials.
 
 Every tool row lives in `backend/app/services/tools/` and is exposed automatically through
 `GET /api/v1/tools` → Tools page. Every stats row is a query in `services/analytics/`.
@@ -54,9 +58,9 @@ Every tool row lives in `backend/app/services/tools/` and is exposed automatical
 | 38 | Milestones: artist ×N, unique artists/tracks | `analytics/milestones.py` | ✅ |
 | 39 | Milestone toasts / notifications | `milestones.notified` | 🧩 |
 | 40 | Listening streak (consecutive days) | `MilestoneKind.listening_streak_days` | 🧩 |
-| 41 | Friends leaderboard (opt-in) | `analytics/leaderboard.py` | ✅ |
+| 41 | Friends leaderboard query (opt-in) | `analytics/leaderboard.py` | ✅ |
 | 42 | Global leaderboard (opt-in) | same | ✅ |
-| 43 | Friend requests (pending/accepted/blocked) | `models/user.py::FriendLink` | 🧩 |
+| 43 | **Friend requests (send/accept/list)** — model and leaderboard query exist, but there is no API or UI to add a friend, so the friends leaderboard is empty in practice | `models/user.py::FriendLink` | 📝 **blocking #41** |
 | 44 | Stats cache (Redis, 10 min) | `api/v1/stats.py::_cached` | ✅ |
 | 45 | "Where I listen from" (context: playlist/album/radio) | `streams.context_uri` | 🧩 |
 | 46 | Platform split (android/ios/desktop/web) | `streams.platform` | 🧩 |
@@ -118,6 +122,8 @@ Every tool row lives in `backend/app/services/tools/` and is exposed automatical
 | 92 | Smart Sonic Filter (BPM/energy/valence/acousticness/danceability) | `sonic.filter` | ✅ |
 | 93 | Audio feature provider chain (Spotify → ReccoBeats → import) | `sonic_filter.py` | ✅ |
 | 94 | Playlist backup (any playlist, weekly label, materialise) | `backup.playlist` | ✅ |
+| 94b | Liked Songs snapshot | `backup.liked_songs` | ✅ |
+| 94c | Resolve Discover Weekly / Release Radar by name, in either language, so a schedule needs no playlist id | `backups.py::resolve_playlist_id` | ✅ |
 | 95 | Shadow capture fallback for Discover Weekly / Release Radar | same | ✅ |
 | 96 | Restore backup (in place or new) | `backup.restore` | ✅ |
 | 97 | Automatic pre-run backups for destructive tools | `workers/tasks/tools.py` | ✅ |
@@ -143,7 +149,7 @@ Every tool row lives in `backend/app/services/tools/` and is exposed automatical
 | 117 | Monthly "Best of" from stream ledger | `library.monthly_best_of` | 📝 |
 | 118 | "Forgotten favourites" (not played in 12 m) | `library.forgotten` | 📝 |
 | 119 | Compactor: cap playlist to N, archive overflow | `playlist.compact` | 📝 |
-| 120 | Weekly listening report e-mail (localised) | `AutomationKind.weekly_report` | 🧩 |
+| 120 | Weekly listening report e-mail (localised) | `AutomationKind.weekly_report` | 📝 |
 | 121 | Mood playlists from audio features (happy/sad/focus) | `sonic.mood_preset` | 📝 |
 | 122 | Tempo ladder for running (BPM ramp) | `sonic.bpm_ladder` | 📝 |
 | 123 | Snapshot diff viewer (what changed in Discover Weekly) | `playlist_backups` | 📝 |

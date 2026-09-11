@@ -5,7 +5,9 @@
     "spotify_not_linked": "Your Spotify account is not linked.",
     "forbidden": "You do not have permission to do that."
   },
-  "auth": { "logged_out": "Signed out." },
+  "auth": {
+    "logged_out": "Signed out."
+  },
   "banhammer": {
     "rule_exists": "This genre rule already exists.",
     "premium_required": "Spotify Premium is required to control playback."
@@ -16,17 +18,54 @@
   },
   "tools": {
     "unknown": "Unknown tool.",
-    "playlist.true_shuffle": { "title": "True Shuffler", "description": "Uniform Fisher–Yates shuffle of the whole playlist, optionally spreading artists apart." },
-    "playlist.blend": { "title": "The Blender", "description": "Merge up to 10 playlists into one, interleaved or appended, deduplicated." },
-    "playlist.split": { "title": "The Splitter", "description": "Slice a massive playlist into numbered volumes." },
-    "bulk.delete_playlists": { "title": "Mass Delete", "description": "Remove many playlists at once (a backup is taken first)." },
-    "bulk.unfollow_artists": { "title": "Mass Unfollow", "description": "Unfollow artists in bulk." },
-    "bulk.update_descriptions": { "title": "Description Batcher", "description": "Apply a description template to many playlists." },
-    "bulk.dedupe_playlist": { "title": "Deduplicator", "description": "Remove duplicate tracks (by ISRC or URI)." },
-    "sonic.filter": { "title": "Smart Sonic Filter", "description": "Build a playlist by BPM, energy, valence and acousticness ranges." },
-    "backup.playlist": { "title": "Playlist Backup", "description": "Snapshot Discover Weekly, Release Radar or any playlist." },
-    "backup.restore": { "title": "Restore Backup", "description": "Restore a snapshot into a playlist." },
-    "porter.text_to_playlist": { "title": "Audio Porter", "description": "Paste 'Artist - Title' lines from Apple/YouTube Music and recreate them on Spotify." }
+    "playlist.true_shuffle": {
+      "title": "True Shuffler",
+      "description": "Uniform Fisher–Yates shuffle of the whole playlist, optionally spreading artists apart."
+    },
+    "playlist.blend": {
+      "title": "The Blender",
+      "description": "Merge up to 10 playlists into one, interleaved or appended, deduplicated."
+    },
+    "playlist.split": {
+      "title": "The Splitter",
+      "description": "Slice a massive playlist into numbered volumes."
+    },
+    "bulk.delete_playlists": {
+      "title": "Mass Delete",
+      "description": "Remove many playlists at once (a backup is taken first)."
+    },
+    "bulk.unfollow_artists": {
+      "title": "Mass Unfollow",
+      "description": "Unfollow artists in bulk."
+    },
+    "bulk.update_descriptions": {
+      "title": "Description Batcher",
+      "description": "Apply a description template to many playlists."
+    },
+    "bulk.dedupe_playlist": {
+      "title": "Deduplicator",
+      "description": "Remove duplicate tracks (by ISRC or URI)."
+    },
+    "sonic.filter": {
+      "title": "Smart Sonic Filter",
+      "description": "Build a playlist by BPM, energy, valence and acousticness ranges."
+    },
+    "backup.playlist": {
+      "title": "Playlist Backup",
+      "description": "Snapshot Discover Weekly, Release Radar or any playlist."
+    },
+    "backup.restore": {
+      "title": "Restore Backup",
+      "description": "Restore a snapshot into a playlist."
+    },
+    "porter.text_to_playlist": {
+      "title": "Audio Porter",
+      "description": "Paste 'Artist - Title' lines from Apple/YouTube Music and recreate them on Spotify."
+    },
+    "backup.liked_songs": {
+      "title": "Liked Songs Backup",
+      "description": "Snapshot every track in your Liked Songs so a purge can be undone."
+    }
   },
   "milestones": {
     "total_minutes": "{value} minutes of listening",

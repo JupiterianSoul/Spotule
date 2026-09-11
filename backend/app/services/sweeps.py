@@ -46,7 +46,7 @@ log = get_logger("sweeps")
 AUTOMATION_TOOLS: dict[str, tuple[str, dict]] = {
     "backup_discover_weekly": ("backup.playlist", {"kind": BackupKind.discover_weekly.value}),
     "backup_release_radar": ("backup.playlist", {"kind": BackupKind.release_radar.value}),
-    "liked_songs_snapshot": ("backup.playlist", {"kind": BackupKind.manual.value}),
+    "liked_songs_snapshot": ("backup.liked_songs", {"kind": BackupKind.manual.value}),
 }
 
 
