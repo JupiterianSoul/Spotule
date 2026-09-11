@@ -1,5 +1,5 @@
 {
-  "app": { "name": "SpotiMax", "tagline": "Your Spotify control center & lifetime tracker." },
+  "app": { "name": "Spotule", "tagline": "Your Spotify control center & lifetime tracker." },
   "common": {
     "loading": "Loading…",
     "error": "Something went wrong.",

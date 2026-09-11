@@ -1,9 +1,9 @@
-# SpotiMax — Architecture
+# Spotule — Architecture
 
 ## 1. Project folder structure
 
 ```
-spotimax/
+spotule/
 ├── .env.example                      # every config knob, documented
 ├── docker-compose.yml                # postgres · redis · api · worker · beat · web
 ├── Makefile
@@ -154,7 +154,7 @@ Celery beat
 
 ## 4. Spotify rate-limit strategy
 
-Spotify enforces a rolling ~30 s window **per application**. SpotiMax therefore:
+Spotify enforces a rolling ~30 s window **per application**. Spotule therefore:
 
 1. Uses one **Redis token bucket** (`SpotifyRateLimiter`, Lua for atomicity) shared by the API
    process and every worker — 60 burst / 3 req·s⁻¹ sustained by default.

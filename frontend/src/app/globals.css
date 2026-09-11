@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* ── SpotiMax "Spotify Dark Mode" design tokens ─────────────────────────────
+/* ── Spotule "Spotify Dark Mode" design tokens ─────────────────────────────
    Tailwind v4: tokens declared here become utilities (bg-surface, text-accent…). */
 @theme {
   --color-bg: #121212;          /* Spotify canvas */

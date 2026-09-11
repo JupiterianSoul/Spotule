@@ -7,9 +7,9 @@ import { QueryProvider } from "@/components/providers/QueryProvider";
 import "../globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "SpotiMax", template: "%s · SpotiMax" },
+  title: { default: "Spotule", template: "%s · Spotule" },
   description: "Spotify automation & lifetime analytics dashboard",
-  applicationName: "SpotiMax",
+  applicationName: "Spotule",
   manifest: "/manifest.webmanifest",
 };
 

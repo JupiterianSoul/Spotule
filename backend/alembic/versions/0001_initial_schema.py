@@ -43,7 +43,7 @@ def upgrade() -> None:
     sa.Column('snapshot_id', sa.String(length=128), nullable=True),
     sa.Column('track_count', sa.Integer(), nullable=False),
     sa.Column('image_url', sa.Text(), nullable=True),
-    sa.Column('managed_by_spotimax', sa.Boolean(), nullable=False),
+    sa.Column('managed_by_spotule', sa.Boolean(), nullable=False),
     sa.Column('managed_kind', sa.String(length=32), nullable=True),
     sa.Column('last_synced_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),

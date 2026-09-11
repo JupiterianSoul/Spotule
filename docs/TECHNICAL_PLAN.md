@@ -1,4 +1,4 @@
-# SpotiMax — Step-by-step Technical Plan
+# Spotule — Step-by-step Technical Plan
 
 Scope of this repository right now: the **core skeleton is implemented and verified** —
 models + migration (28 tables), OAuth/session layer, rate-limited Spotify client, ingest
@@ -115,7 +115,7 @@ The registry makes each feature a single file. Priority order:
 
 ## Spotify Web API caveats you must design around (as of 2025–2026)
 
-| Constraint | Impact | Mitigation in SpotiMax |
+| Constraint | Impact | Mitigation in Spotule |
 |---|---|---|
 | **Development mode: 25 users, name+email allow-list** | Friends must be added manually | Apply for Extended Quota; UI copy explains it |
 | **No playback webhooks** | "Instant" skip = polling | Adaptive poll + Web SDK bridge (`skip_guard.py`) |

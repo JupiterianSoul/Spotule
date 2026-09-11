@@ -1,0 +1,19 @@
+# Caddy terminates TLS (automatic Let's Encrypt certificate) and forwards everything to the
+# Next.js container. Next then proxies /api/* to FastAPI internally, so the whole app is served
+# from ONE origin and the session cookie stays first-party.
+{$DOMAIN} {
+	encode zstd gzip
+
+	# The Spotify data-export ZIP can be hundreds of megabytes.
+	request_body {
+		max_size 512MB
+	}
+
+	reverse_proxy web:3000 {
+		header_up X-Forwarded-Proto {scheme}
+		transport http {
+			read_timeout 600s
+			write_timeout 600s
+		}
+	}
+}

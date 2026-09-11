@@ -5,6 +5,7 @@ import { routing } from "./i18n/routing";
 export default createMiddleware(routing);
 
 export const config = {
-  // Skip API routes, Next internals and static files
-  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
+  // Skip proxied API routes, the health probe, Next internals and static files —
+  // these must never be rewritten to a /[locale]/ path.
+  matcher: ["/((?!api|healthz|_next|_vercel|.*\\..*).*)"],
 };

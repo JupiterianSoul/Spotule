@@ -4,7 +4,14 @@
  * - Forwards the active locale as Accept-Language so API error messages are localised.
  * - Throws ApiError with the backend's localised `detail`.
  */
-export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+/**
+ * Empty by default: requests go to the same origin as the page and Next's rewrite
+ * (see next.config.mjs) forwards them to FastAPI. Set NEXT_PUBLIC_API_BASE_URL only if
+ * you deliberately want the browser to hit the API on another origin — you must then
+ * also set COOKIE_SECURE=true and SameSite=None on the backend, and accept that some
+ * browsers block the cookie outright.
+ */
+export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {

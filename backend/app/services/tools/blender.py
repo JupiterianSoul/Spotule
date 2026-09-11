@@ -46,7 +46,7 @@ class Blender(Tool):
             seen: set[str] = set()
             merged = [u for u in merged if not (u in seen or seen.add(u))]
         new = await ctx.client.create_playlist(
-            ctx.user.spotify_id, params.name, "Blended with SpotiMax", params.public
+            ctx.user.spotify_id, params.name, "Blended with Spotule", params.public
         )
         await ctx.client.add_items(new["id"], merged)
         return {"playlist_id": new["id"], "count": len(merged), "sources": len(lists)}

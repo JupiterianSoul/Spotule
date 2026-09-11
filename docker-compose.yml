@@ -1,15 +1,15 @@
-# SpotiMax local stack: Postgres + Redis + API + workers + web
+# Spotule local stack: Postgres + Redis + API + workers + web
 services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: spotimax
-      POSTGRES_PASSWORD: spotimax
-      POSTGRES_DB: spotimax
+      POSTGRES_USER: spotule
+      POSTGRES_PASSWORD: spotule
+      POSTGRES_DB: spotule
     ports: ["5432:5432"]
     volumes: ["pgdata:/var/lib/postgresql/data"]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U spotimax"]
+      test: ["CMD-SHELL", "pg_isready -U spotule"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -29,8 +29,8 @@ services:
     build: ./backend
     env_file: .env
     environment:
-      DATABASE_URL: postgresql+asyncpg://spotimax:spotimax@postgres:5432/spotimax
-      DATABASE_URL_SYNC: postgresql+psycopg://spotimax:spotimax@postgres:5432/spotimax
+      DATABASE_URL: postgresql+asyncpg://spotule:spotule@postgres:5432/spotule
+      DATABASE_URL_SYNC: postgresql+psycopg://spotule:spotule@postgres:5432/spotule
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/2
@@ -45,8 +45,8 @@ services:
     build: ./backend
     env_file: .env
     environment:
-      DATABASE_URL: postgresql+asyncpg://spotimax:spotimax@postgres:5432/spotimax
-      DATABASE_URL_SYNC: postgresql+psycopg://spotimax:spotimax@postgres:5432/spotimax
+      DATABASE_URL: postgresql+asyncpg://spotule:spotule@postgres:5432/spotule
+      DATABASE_URL_SYNC: postgresql+psycopg://spotule:spotule@postgres:5432/spotule
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/2
@@ -59,8 +59,8 @@ services:
     build: ./backend
     env_file: .env
     environment:
-      DATABASE_URL: postgresql+asyncpg://spotimax:spotimax@postgres:5432/spotimax
-      DATABASE_URL_SYNC: postgresql+psycopg://spotimax:spotimax@postgres:5432/spotimax
+      DATABASE_URL: postgresql+asyncpg://spotule:spotule@postgres:5432/spotule
+      DATABASE_URL_SYNC: postgresql+psycopg://spotule:spotule@postgres:5432/spotule
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/2
@@ -70,9 +70,11 @@ services:
   web:
     build:
       context: ./frontend
-      args:
-        NEXT_PUBLIC_API_BASE_URL: http://127.0.0.1:8000
     env_file: .env
+    environment:
+      # Browser never sees this: Next proxies /api/* here, keeping cookies first-party.
+      API_INTERNAL_URL: http://api:8000
+      NEXT_PUBLIC_API_BASE_URL: ""
     ports: ["3000:3000"]
     depends_on: [api]
 

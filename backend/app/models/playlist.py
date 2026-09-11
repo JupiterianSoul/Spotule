@@ -1,4 +1,4 @@
-"""Playlists mirrored from Spotify + SpotiMax-managed snapshots/backups."""
+"""Playlists mirrored from Spotify + Spotule-managed snapshots/backups."""
 
 from __future__ import annotations
 
@@ -26,8 +26,8 @@ class Playlist(TimestampMixin, Base):
     snapshot_id: Mapped[str | None] = mapped_column(String(128))
     track_count: Mapped[int] = mapped_column(Integer, default=0)
     image_url: Mapped[str | None] = mapped_column(Text)
-    # True when SpotiMax created it (backup volume, blend output, split part, sonic filter…)
-    managed_by_spotimax: Mapped[bool] = mapped_column(Boolean, default=False)
+    # True when Spotule created it (backup volume, blend output, split part, sonic filter…)
+    managed_by_spotule: Mapped[bool] = mapped_column(Boolean, default=False)
     managed_kind: Mapped[str | None] = mapped_column(String(32))
     last_synced_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 

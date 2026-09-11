@@ -17,13 +17,13 @@ log = get_logger()
 async def lifespan(app: FastAPI):
     configure_logging()
     await get_redis().ping()
-    log.info("spotimax.api.start", env=settings.app_env)
+    log.info("spotule.api.start", env=settings.app_env)
     yield
     await get_redis().aclose()
 
 
 app = FastAPI(
-    title="SpotiMax API",
+    title="Spotule API",
     version="0.1.0",
     lifespan=lifespan,
     docs_url="/api/docs" if not settings.is_prod else None,

@@ -10,7 +10,7 @@ from kombu import Queue
 
 from app.core.config import settings
 
-celery_app = Celery("spotimax", broker=settings.celery_broker_url, backend=settings.celery_result_backend)
+celery_app = Celery("spotule", broker=settings.celery_broker_url, backend=settings.celery_result_backend)
 celery_app.conf.update(
     task_serializer="json",
     result_serializer="json",

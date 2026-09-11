@@ -1,7 +1,7 @@
 [project]
-name = "spotimax-backend"
+name = "spotule-backend"
 version = "0.1.0"
-description = "SpotiMax — multi-user Spotify automation & analytics engine (FastAPI)"
+description = "Spotule — multi-user Spotify automation & analytics engine (FastAPI)"
 requires-python = ">=3.11"
 dependencies = [
   "fastapi>=0.115",

@@ -1,4 +1,4 @@
-# SpotiMax
+# Spotule
 
 Enterprise-grade, multi-user **Spotify automation & lifetime analytics dashboard**.
 A personal control center (playlist tools, genre ban-hammer, automations) fused with a
@@ -27,9 +27,21 @@ make setup                      # asks for your client id/secret, generates all 
 docker compose up --build       # postgres, redis, api (:8000), worker, beat, web (:3000)
 ```
 
-Open <http://127.0.0.1:3000/en> (or `/fr`). While the Spotify app is in *Development mode*,
-each friend must be added by name + email under **User Management** on the Spotify developer
-dashboard (max 25 users) before they can sign in.
+Open <http://127.0.0.1:3000/en> (or `/fr`).
+
+### Who can sign in
+
+Spotule itself has no allow-list, no invite codes and no user cap: anyone who completes the
+Spotify OAuth flow gets an account and their own isolated library. The limit comes from Spotify,
+and every third-party Spotify app lives under it.
+
+| Spotify app mode | Who can log in | How you get there |
+|---|---|---|
+| **Development** (every new app starts here) | Up to 25 people, each added by name + email under **User Management** in the Spotify dashboard | Automatic |
+| **Extended Quota** | Anyone with a Spotify account, no allow-list | Apply from the dashboard; Spotify reviews it, and approval is not guaranteed |
+
+So "log in and you're in" is exactly what the code does. Until Spotify approves an Extended Quota
+request, their gate keeps it to 25 named people. Nothing on this side can change that.
 
 ### Local development (no Docker)
 
@@ -44,21 +56,39 @@ cd frontend && pnpm install && pnpm dev
 
 Tests & lint: `make test` · `make lint`. API docs: <http://127.0.0.1:8000/api/docs>.
 
+## Deploying to a real domain
+
+Spotule cannot run on GitHub Pages: it needs a server for the OAuth secret, Postgres, Redis and
+a worker running 24/7 so listening history keeps recording while the site is closed. The shortest
+path to a public URL is a small VPS:
+
+```bash
+make setup && echo "DOMAIN=spotule.example.com" >> .env
+make deploy     # Caddy fetches a TLS certificate automatically
+```
+
+Everything is served from one origin, which keeps the session cookie first-party and working in
+every browser. See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for the full topology, managed-platform
+alternatives and the production checklist.
+
 ## Documentation
 
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — folder structure, request/worker flows, multi-tenancy, rate limiting, i18n
 - [`docs/DATA_MODEL.md`](docs/DATA_MODEL.md) — every table, why it exists, key indexes
 - [`docs/TECHNICAL_PLAN.md`](docs/TECHNICAL_PLAN.md) — step-by-step build plan, milestones, Spotify API caveats
 - [`docs/FEATURE_MATRIX.md`](docs/FEATURE_MATRIX.md) — the 100+ micro-features and where each lives in the code
+- [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — putting Spotule on a public domain
 
 ## Repository layout
 
 ```
-spotimax/
+spotule/
 ├── backend/            FastAPI app, SQLAlchemy models, Celery workers, Alembic migrations
 ├── frontend/           Next.js app (app/[locale]/…), messages/{en,fr}.json
 ├── docs/               Architecture, data model, plan, feature matrix
+├── infra/              Caddyfile (TLS reverse proxy)
 ├── docker-compose.yml  Full local stack
+├── docker-compose.prod.yml  Production overlay (TLS, no exposed internals)
 ├── Makefile            Common commands
 └── .env.example        All configuration knobs
 ```

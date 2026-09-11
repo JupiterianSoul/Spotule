@@ -149,7 +149,7 @@ class SonicFilter(Tool):
             and self._in(feats[t["id"]].acousticness, params.acousticness_min, params.acousticness_max)
             and self._in(feats[t["id"]].danceability, params.danceability_min, params.danceability_max)
         ]
-        new = await ctx.client.create_playlist(ctx.user.spotify_id, params.name, "Sonic filter · SpotiMax")
+        new = await ctx.client.create_playlist(ctx.user.spotify_id, params.name, "Sonic filter · Spotule")
         await ctx.client.add_items(new["id"], keep)
         return {
             "playlist_id": new["id"],

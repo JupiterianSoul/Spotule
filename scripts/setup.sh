@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SpotiMax first-run setup: creates .env with strong random secrets and asks only for the
+# Spotule first-run setup: creates .env with strong random secrets and asks only for the
 # two values that must come from your Spotify developer app.
 set -euo pipefail
 
@@ -26,7 +26,7 @@ if [ -f "$ENV_FILE" ]; then
   exit 0
 fi
 
-echo "── SpotiMax setup ─────────────────────────────────────────────"
+echo "── Spotule setup ─────────────────────────────────────────────"
 echo "Create a Spotify app at https://developer.spotify.com/dashboard"
 echo "and add this Redirect URI to it (exactly):"
 echo

@@ -81,7 +81,7 @@ class BackupPlaylist(Tool):
         )
         if params.materialize and uris:
             new = await ctx.client.create_playlist(
-                ctx.user.spotify_id, f"{name} · {label}", "Backup by SpotiMax"
+                ctx.user.spotify_id, f"{name} · {label}", "Backup by Spotule"
             )
             await ctx.client.add_items(new["id"], uris)
             backup.materialized_playlist_id = new["id"]

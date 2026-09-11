@@ -56,6 +56,6 @@ class AudioPorter(Tool):
             else:
                 misses.append(w)
             ctx.report_progress(int(90 * (i + 1) / max(len(wanted), 1)))
-        new = await ctx.client.create_playlist(ctx.user.spotify_id, params.name, "Ported with SpotiMax")
+        new = await ctx.client.create_playlist(ctx.user.spotify_id, params.name, "Ported with Spotule")
         await ctx.client.add_items(new["id"], found)
         return {"playlist_id": new["id"], "matched": len(found), "unmatched": misses}

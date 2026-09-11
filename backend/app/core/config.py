@@ -49,13 +49,13 @@ class Settings(BaseSettings):
     # Security
     secret_key: str = "change-me"
     token_encryption_key: str = ""
-    session_cookie_name: str = "spotimax_session"
+    session_cookie_name: str = "spotule_session"
     session_ttl_seconds: int = 60 * 60 * 24 * 30
     cookie_secure: bool = False
 
     # Stores
-    database_url: str = "postgresql+asyncpg://spotimax:spotimax@localhost:5432/spotimax"
-    database_url_sync: str = "postgresql+psycopg://spotimax:spotimax@localhost:5432/spotimax"
+    database_url: str = "postgresql+asyncpg://spotule:spotule@localhost:5432/spotule"
+    database_url_sync: str = "postgresql+psycopg://spotule:spotule@localhost:5432/spotule"
     redis_url: str = "redis://localhost:6379/0"
     celery_broker_url: str = "redis://localhost:6379/1"
     celery_result_backend: str = "redis://localhost:6379/2"

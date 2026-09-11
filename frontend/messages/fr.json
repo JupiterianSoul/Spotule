@@ -1,5 +1,5 @@
 {
-  "app": { "name": "SpotiMax", "tagline": "Votre centre de contrôle Spotify et traqueur d'écoute à vie." },
+  "app": { "name": "Spotule", "tagline": "Votre centre de contrôle Spotify et traqueur d'écoute à vie." },
   "common": {
     "loading": "Chargement…",
     "error": "Une erreur est survenue.",

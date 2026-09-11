@@ -1,4 +1,4 @@
-# SpotiMax — Feature Matrix (100+ micro-features)
+# Spotule — Feature Matrix (100+ micro-features)
 
 Status legend: ✅ implemented in this scaffold · 🧩 scaffolded (model/registry/route exists, logic to fill) · 📝 planned (one file in `services/tools/` + 2 locale strings)
 

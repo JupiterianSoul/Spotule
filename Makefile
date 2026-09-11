@@ -1,4 +1,4 @@
-.PHONY: setup up down logs api web worker migrate revision test lint
+.PHONY: setup up down logs api web worker migrate revision test lint deploy
 
 setup:         ## First run: generate .env (asks for your Spotify client id/secret)
 	bash scripts/setup.sh
@@ -32,3 +32,6 @@ test:          ## Run backend tests
 
 lint:          ## Lint everything
 	cd backend && ruff check . && cd ../frontend && pnpm lint
+
+deploy:        ## Production: TLS via Caddy. Needs DOMAIN set in .env
+	docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
