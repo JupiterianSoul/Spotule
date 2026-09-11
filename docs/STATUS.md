@@ -3,7 +3,7 @@
 What actually works, what is half-built, and what has never run against real Spotify
 credentials. Kept separate from the feature matrix so it stays blunt.
 
-Last updated alongside the commit that added `scripts/smoke-test.sh`.
+Last updated alongside the commit that added the friends feature and the tools batch.
 
 ## Verified working
 
@@ -17,27 +17,28 @@ Covered by automated tests, or exercised against live local servers.
   catalogue hydration and relinking. Unit-tested on real export payloads.
 - Analytics queries: overview, top tracks/artists/albums/genres, listening clock, milestones.
 - Ban-hammer rule evaluation, including contains/exact/regex modes and exemptions.
-- Playlist tools: true shuffle, blender, splitter, bulk commander, sonic filter, porter,
-  backups and restore. The pure logic is tested; the Spotify calls are not (see below).
+- Twenty-five playlist and library tools: true shuffle, blender, splitter, sort, reverse, copy,
+  set operations, prune, subtract-liked, export, bulk delete/unfollow/rename/visibility/
+  describe/dedupe, sonic filter and mood presets, monthly best-of and forgotten favourites from
+  the ledger, Liked Songs mirror, backups and restore. Pure logic is tested; the Spotify calls
+  are not (see below).
+- Friends: search, request, accept, decline, remove, with the crossed-request case, covered by
+  an integration test running two real users through the API with real sessions.
+- Automations page with an inline editor for the schedule and an optional playlist id.
+- New-milestone badge on the dashboard, cleared server-side once shown.
 - Scheduler endpoints and the GitHub Actions workflow that drives them.
 - Bilingual UI: 190 keys per language, parity-checked in CI, both locales render.
 - Database schema: 28 tables, migration applies and rolls back cleanly with no model drift.
 
 ## Not finished
 
-- **Friends.** This is the biggest gap relative to what you asked for. The database model and
-  the leaderboard query both exist and are correct, but there is no endpoint or screen to send
-  or accept a friend request. Until that lands, the friends leaderboard renders empty no matter
-  how many people sign up. Needs four small endpoints and one page.
 - **Skip guard on free hosting.** Works in principle and the code is complete, but it needs a
   process that never sleeps, so it cannot run on the Render free tier. The toggle stays off.
 - **Web Playback SDK bridge.** The backend endpoint exists; the browser-side listener that
   would give the skip guard near-zero latency does not.
-- **Milestone notifications.** Milestones are awarded and listed, but nothing surfaces a new one.
-- **Automation config editor.** The automations page toggles jobs on and off using sensible
-  default schedules. There is no UI to edit the cron expression or pass a specific playlist id.
 - **Artist and track drill-down pages.** Listed in the matrix, not built.
-- Roughly forty tools in the matrix marked 📝. Each is one file plus two locale strings.
+- About twenty-five tools in the matrix still marked 📝, mostly URL scrapers for the Audio
+  Porter, cover-art upload and the weekly e-mail report (which needs an SMTP provider).
 
 ## Never run against real Spotify
 

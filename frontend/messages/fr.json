@@ -1,5 +1,8 @@
 {
-  "app": { "name": "Spotule", "tagline": "Votre centre de contrôle Spotify et traqueur d'écoute à vie." },
+  "app": {
+    "name": "Spotule",
+    "tagline": "Votre centre de contrôle Spotify et traqueur d'écoute à vie."
+  },
   "common": {
     "loading": "Chargement…",
     "error": "Une erreur est survenue.",
@@ -21,7 +24,11 @@
     "tracks": "{count, plural, one {# titre} other {# titres}}",
     "comingSoon": "Bientôt disponible"
   },
-  "locale": { "switch": "Langue", "en": "English", "fr": "Français" },
+  "locale": {
+    "switch": "Langue",
+    "en": "English",
+    "fr": "Français"
+  },
   "auth": {
     "signIn": "Se connecter avec Spotify",
     "signOut": "Se déconnecter",
@@ -44,10 +51,22 @@
     "subtitle": "Un historique d'écoute à vie au-delà de la limite de 50 titres de Spotify, des tableaux de bord façon Stats.fm, un ban-hammer de genres en temps réel et plus de 100 outils de playlists — pour vous et vos amis, chacun avec sa bibliothèque privée.",
     "cta": "Se connecter avec Spotify",
     "pillars": {
-      "tracking": { "title": "Moteur de suivi", "body": "Enregistreur en arrière-plan + import de l'export officiel pour un historique immuable." },
-      "banhammer": { "title": "Ban-Hammer", "body": "Bannissez des genres, purgez votre bibliothèque, sautez automatiquement en moins de 500 ms." },
-      "tools": { "title": "Outils de playlists", "body": "Vrai mélange, mixeur, découpeur, filtres soniques, commandes en masse, portage." },
-      "friends": { "title": "Amis", "body": "Comparez vos écoutes avec les amis qui l'acceptent." }
+      "tracking": {
+        "title": "Moteur de suivi",
+        "body": "Enregistreur en arrière-plan + import de l'export officiel pour un historique immuable."
+      },
+      "banhammer": {
+        "title": "Ban-Hammer",
+        "body": "Bannissez des genres, purgez votre bibliothèque, sautez automatiquement en moins de 500 ms."
+      },
+      "tools": {
+        "title": "Outils de playlists",
+        "body": "Vrai mélange, mixeur, découpeur, filtres soniques, commandes en masse, portage."
+      },
+      "friends": {
+        "title": "Amis",
+        "body": "Comparez vos écoutes avec les amis qui l'acceptent."
+      }
     }
   },
   "timeframe": {
@@ -83,13 +102,29 @@
   },
   "stats": {
     "title": "Statistiques",
-    "tabs": { "tracks": "Titres", "artists": "Artistes", "albums": "Albums", "genres": "Genres", "clock": "Horloge", "milestones": "Jalons", "leaderboard": "Classement" },
+    "tabs": {
+      "tracks": "Titres",
+      "artists": "Artistes",
+      "albums": "Albums",
+      "genres": "Genres",
+      "clock": "Horloge",
+      "milestones": "Jalons",
+      "leaderboard": "Classement"
+    },
     "clock": {
       "title": "Quand vous écoutez",
       "hours": "Heure de la journée",
       "days": "Jour de la semaine",
       "peak": "Pic : {day} à {hour} h",
-      "weekdays": ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
+      "weekdays": [
+        "Lun",
+        "Mar",
+        "Mer",
+        "Jeu",
+        "Ven",
+        "Sam",
+        "Dim"
+      ]
     },
     "milestones": {
       "title": "Jalons",
@@ -105,7 +140,10 @@
       "title": "Classement",
       "friends": "Amis",
       "global": "Tout le monde (volontaires)",
-      "metric": { "minutes": "Minutes", "streams": "Écoutes" },
+      "metric": {
+        "minutes": "Minutes",
+        "streams": "Écoutes"
+      },
       "you": "Vous",
       "empty": "Ajoutez des amis pour comparer vos statistiques."
     },
@@ -120,7 +158,11 @@
     "pattern": "Motif de genre",
     "patternHint": "ex. rap, hip hop, trap — « contient » attrape aussi « rap français »",
     "matchMode": "Correspondance",
-    "modes": { "contains": "Contient", "exact": "Exact", "regex": "Regex" },
+    "modes": {
+      "contains": "Contient",
+      "exact": "Exact",
+      "regex": "Regex"
+    },
     "applySkip": "Garde de saut",
     "applyPurge": "Purge de bibliothèque",
     "ruleExists": "Cette règle existe déjà.",
@@ -137,7 +179,12 @@
       "scanned": "Analysés",
       "matched": "Détectés",
       "removed": "Retirés",
-      "status": { "queued": "En attente", "running": "En cours", "succeeded": "Terminé", "failed": "Échec" }
+      "status": {
+        "queued": "En attente",
+        "running": "En cours",
+        "succeeded": "Terminé",
+        "failed": "Échec"
+      }
     },
     "guard": {
       "title": "Garde de saut en temps réel",
@@ -153,7 +200,14 @@
   "tools": {
     "title": "Outils",
     "subtitle": "Compacteur de playlists, utilitaires et automatisations.",
-    "pillars": { "playlists": "Playlists", "bulk": "Commandes en masse", "sonic": "Filtres soniques", "backup": "Sauvegardes", "porter": "Portage audio", "library": "Bibliothèque" },
+    "pillars": {
+      "playlists": "Playlists",
+      "bulk": "Commandes en masse",
+      "sonic": "Filtres soniques",
+      "backup": "Sauvegardes",
+      "porter": "Portage audio",
+      "library": "Bibliothèque"
+    },
     "destructive": "Modifie votre bibliothèque — une sauvegarde est faite avant",
     "premium": "Premium",
     "runs": "Exécutions récentes",
@@ -168,7 +222,12 @@
     "jobs": "Imports",
     "rows": "{inserted, number} lignes importées · {dupes, number} doublons ignorés",
     "range": "{from} → {to}",
-    "status": { "queued": "En attente", "running": "Analyse…", "succeeded": "Terminé", "failed": "Échec" }
+    "status": {
+      "queued": "En attente",
+      "running": "Analyse…",
+      "succeeded": "Terminé",
+      "failed": "Échec"
+    }
   },
   "automations": {
     "title": "Automatisations",
@@ -185,7 +244,13 @@
     "enabled": "Activée",
     "schedule": "Planning (cron)",
     "lastRun": "Dernière exécution",
-    "nextRun": "Prochaine exécution"
+    "nextRun": "Prochaine exécution",
+    "edit": "Modifier",
+    "cron": "Expression cron (UTC)",
+    "playlistId": "Identifiant de playlist (facultatif)",
+    "playlistHint": "Laissez vide pour trouver Discover Weekly / Radar des sorties automatiquement.",
+    "saved": "Enregistré",
+    "invalidCron": "Ce n'est pas une expression cron valide."
   },
   "settings": {
     "title": "Paramètres",
@@ -199,5 +264,26 @@
     "danger": "Zone de danger",
     "deleteAccount": "Supprimer mon compte et toutes mes données",
     "deleteConfirm": "Cela supprime définitivement vos écoutes, sauvegardes et jetons. Continuer ?"
+  },
+  "friends": {
+    "title": "Amis",
+    "subtitle": "Comparez vos écoutes avec les personnes connectées ici qui choisissent de partager.",
+    "search": "Trouver quelqu'un",
+    "searchHint": "Son nom affiché, ou le nom d'utilisateur de son lien de profil Spotify",
+    "noResults": "Aucun résultat.",
+    "add": "Ajouter",
+    "incoming": "Demandes reçues",
+    "outgoing": "Envoyées",
+    "list": "Vos amis",
+    "accept": "Accepter",
+    "decline": "Refuser",
+    "cancel": "Annuler",
+    "remove": "Retirer",
+    "empty": "Pas encore d'amis. Cherchez quelqu'un ci-dessus, ou partagez votre identifiant.",
+    "notSharing": "Ne partage pas ses statistiques",
+    "shareLink": "Votre nom d'utilisateur Spotify, pour que vos amis vous trouvent : {id}"
+  },
+  "milestones": {
+    "new": "{count, plural, one {# nouveau jalon} other {# nouveaux jalons}}"
   }
 }

@@ -65,6 +65,58 @@
     "backup.liked_songs": {
       "title": "Sauvegarde des Titres likés",
       "description": "Capture tous vos Titres likés pour pouvoir annuler une purge."
+    },
+    "playlist.reverse": {
+      "title": "Inverser",
+      "description": "Retourne l'ordre d'une playlist de bout en bout."
+    },
+    "playlist.sort": {
+      "title": "Trier",
+      "description": "Par date d'ajout, nom, artiste, album, durée, année de sortie ou popularité."
+    },
+    "playlist.copy": {
+      "title": "Copier",
+      "description": "Duplique une playlist qui n'est pas à vous pour pouvoir la modifier."
+    },
+    "playlist.set_ops": {
+      "title": "Comparer deux playlists",
+      "description": "A moins B, A et B, ou A plus B, dans une nouvelle playlist."
+    },
+    "playlist.prune_unavailable": {
+      "title": "Retirer les titres grisés",
+      "description": "Supprime les titres qui ne sont plus lisibles dans votre région."
+    },
+    "playlist.subtract_liked": {
+      "title": "Retirer les déjà likés",
+      "description": "Enlève chaque titre déjà présent dans vos Titres likés."
+    },
+    "playlist.export": {
+      "title": "Exporter",
+      "description": "Liste chaque titre avec artiste, album, ISRC et date d'ajout."
+    },
+    "bulk.rename": {
+      "title": "Renommer en masse",
+      "description": "Renomme plusieurs playlists avec un modèle comme « {name} · {date} »."
+    },
+    "bulk.set_visibility": {
+      "title": "Public/privé en masse",
+      "description": "Rend plusieurs playlists publiques ou privées d'un coup."
+    },
+    "library.monthly_best_of": {
+      "title": "Meilleur du mois",
+      "description": "Vos titres les plus écoutés d'un mois donné, d'après votre historique complet."
+    },
+    "library.forgotten": {
+      "title": "Favoris oubliés",
+      "description": "Des titres beaucoup écoutés puis délaissés. Spotify ne sait pas vous le dire."
+    },
+    "library.liked_to_playlist": {
+      "title": "Miroir des Titres likés",
+      "description": "Copie vos Titres likés dans une playlist partageable, du plus récent ou du plus ancien."
+    },
+    "sonic.mood_preset": {
+      "title": "Playlist d'humeur",
+      "description": "Joyeux, triste, concentration, fête, calme ou sport — un clic, des plages soniques réglées."
     }
   },
   "milestones": {
@@ -74,5 +126,13 @@
     "track_streams": "{entity} écouté {value} fois",
     "unique_artists": "{value} artistes différents",
     "unique_tracks": "{value} titres différents"
+  },
+  "friends": {
+    "target_required": "Indiquez un identifiant utilisateur ou un nom d'utilisateur Spotify.",
+    "not_found": "Personne sur Spotule ne correspond.",
+    "not_yourself": "Vous ne pouvez pas vous ajouter vous-même.",
+    "blocked": "Cette personne n'accepte pas les demandes.",
+    "already_friends": "Vous êtes déjà amis.",
+    "already_requested": "Demande déjà envoyée."
   }
 }

@@ -1,5 +1,8 @@
 {
-  "app": { "name": "Spotule", "tagline": "Your Spotify control center & lifetime tracker." },
+  "app": {
+    "name": "Spotule",
+    "tagline": "Your Spotify control center & lifetime tracker."
+  },
   "common": {
     "loading": "Loading…",
     "error": "Something went wrong.",
@@ -21,7 +24,11 @@
     "tracks": "{count, plural, one {# track} other {# tracks}}",
     "comingSoon": "Coming soon"
   },
-  "locale": { "switch": "Language", "en": "English", "fr": "Français" },
+  "locale": {
+    "switch": "Language",
+    "en": "English",
+    "fr": "Français"
+  },
   "auth": {
     "signIn": "Sign in with Spotify",
     "signOut": "Sign out",
@@ -44,10 +51,22 @@
     "subtitle": "Lifetime listening history beyond Spotify's 50-track limit, Stats.fm-style dashboards, a real-time genre ban-hammer and 100+ playlist tools — for you and your friends, each with a private library.",
     "cta": "Sign in with Spotify",
     "pillars": {
-      "tracking": { "title": "Tracking engine", "body": "Background logger + official data-export importer build an immutable history." },
-      "banhammer": { "title": "Ban-Hammer", "body": "Blacklist genres; purge your library; auto-skip within 500 ms." },
-      "tools": { "title": "Playlist tools", "body": "True shuffle, blender, splitter, sonic filters, bulk commander, porter." },
-      "friends": { "title": "Friends", "body": "Compare your listening with friends who opt in." }
+      "tracking": {
+        "title": "Tracking engine",
+        "body": "Background logger + official data-export importer build an immutable history."
+      },
+      "banhammer": {
+        "title": "Ban-Hammer",
+        "body": "Blacklist genres; purge your library; auto-skip within 500 ms."
+      },
+      "tools": {
+        "title": "Playlist tools",
+        "body": "True shuffle, blender, splitter, sonic filters, bulk commander, porter."
+      },
+      "friends": {
+        "title": "Friends",
+        "body": "Compare your listening with friends who opt in."
+      }
     }
   },
   "timeframe": {
@@ -83,13 +102,29 @@
   },
   "stats": {
     "title": "Stats",
-    "tabs": { "tracks": "Tracks", "artists": "Artists", "albums": "Albums", "genres": "Genres", "clock": "Clock", "milestones": "Milestones", "leaderboard": "Leaderboard" },
+    "tabs": {
+      "tracks": "Tracks",
+      "artists": "Artists",
+      "albums": "Albums",
+      "genres": "Genres",
+      "clock": "Clock",
+      "milestones": "Milestones",
+      "leaderboard": "Leaderboard"
+    },
     "clock": {
       "title": "When you listen",
       "hours": "Hour of day",
       "days": "Day of week",
       "peak": "Peak: {day} at {hour}h",
-      "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+      "weekdays": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ]
     },
     "milestones": {
       "title": "Milestones",
@@ -105,7 +140,10 @@
       "title": "Leaderboard",
       "friends": "Friends",
       "global": "Everyone (opt-in)",
-      "metric": { "minutes": "Minutes", "streams": "Streams" },
+      "metric": {
+        "minutes": "Minutes",
+        "streams": "Streams"
+      },
       "you": "You",
       "empty": "Add friends to compare your stats."
     },
@@ -120,7 +158,11 @@
     "pattern": "Genre pattern",
     "patternHint": "e.g. rap, hip hop, trap — “contains” also catches “french rap”",
     "matchMode": "Match",
-    "modes": { "contains": "Contains", "exact": "Exact", "regex": "Regex" },
+    "modes": {
+      "contains": "Contains",
+      "exact": "Exact",
+      "regex": "Regex"
+    },
     "applySkip": "Skip guard",
     "applyPurge": "Library purge",
     "ruleExists": "This rule already exists.",
@@ -137,7 +179,12 @@
       "scanned": "Scanned",
       "matched": "Matched",
       "removed": "Removed",
-      "status": { "queued": "Queued", "running": "Running", "succeeded": "Done", "failed": "Failed" }
+      "status": {
+        "queued": "Queued",
+        "running": "Running",
+        "succeeded": "Done",
+        "failed": "Failed"
+      }
     },
     "guard": {
       "title": "Real-time skip guard",
@@ -153,7 +200,14 @@
   "tools": {
     "title": "Tools",
     "subtitle": "Playlist compactor, utilities and automations.",
-    "pillars": { "playlists": "Playlists", "bulk": "Bulk commander", "sonic": "Sonic filters", "backup": "Backups", "porter": "Audio porter", "library": "Library" },
+    "pillars": {
+      "playlists": "Playlists",
+      "bulk": "Bulk commander",
+      "sonic": "Sonic filters",
+      "backup": "Backups",
+      "porter": "Audio porter",
+      "library": "Library"
+    },
     "destructive": "Modifies your library — a backup is taken first",
     "premium": "Premium",
     "runs": "Recent runs",
@@ -168,7 +222,12 @@
     "jobs": "Imports",
     "rows": "{inserted, number} rows imported · {dupes, number} duplicates skipped",
     "range": "{from} → {to}",
-    "status": { "queued": "Queued", "running": "Parsing…", "succeeded": "Done", "failed": "Failed" }
+    "status": {
+      "queued": "Queued",
+      "running": "Parsing…",
+      "succeeded": "Done",
+      "failed": "Failed"
+    }
   },
   "automations": {
     "title": "Automations",
@@ -185,7 +244,13 @@
     "enabled": "Enabled",
     "schedule": "Schedule (cron)",
     "lastRun": "Last run",
-    "nextRun": "Next run"
+    "nextRun": "Next run",
+    "edit": "Edit",
+    "cron": "Cron expression (UTC)",
+    "playlistId": "Playlist id (optional)",
+    "playlistHint": "Leave empty to find Discover Weekly / Release Radar automatically.",
+    "saved": "Saved",
+    "invalidCron": "That is not a valid cron expression."
   },
   "settings": {
     "title": "Settings",
@@ -199,5 +264,26 @@
     "danger": "Danger zone",
     "deleteAccount": "Delete my account and all data",
     "deleteConfirm": "This permanently deletes your streams, backups and tokens. Continue?"
+  },
+  "friends": {
+    "title": "Friends",
+    "subtitle": "Compare listening with people who sign in here and choose to share.",
+    "search": "Find someone",
+    "searchHint": "Their display name, or the username from their Spotify profile link",
+    "noResults": "Nobody matched.",
+    "add": "Add",
+    "incoming": "Requests for you",
+    "outgoing": "Sent",
+    "list": "Your friends",
+    "accept": "Accept",
+    "decline": "Decline",
+    "cancel": "Cancel",
+    "remove": "Remove",
+    "empty": "No friends yet. Search for someone above, or share your link.",
+    "notSharing": "Not sharing stats",
+    "shareLink": "Your Spotify username, so friends can find you: {id}"
+  },
+  "milestones": {
+    "new": "{count, plural, one {# new milestone} other {# new milestones}}"
   }
 }

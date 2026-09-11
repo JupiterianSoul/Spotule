@@ -120,9 +120,23 @@ async def milestones(user: CurrentUser, db: DB, limit: int = 50):
             "entity_name": m.entity_name,
             "achieved_at": m.achieved_at,
             "value": m.value_at_achievement,
+            "new": not m.notified,
         }
         for m in rows
     ]
+
+
+@router.post("/milestones/seen", status_code=204)
+async def milestones_seen(user: CurrentUser, db: DB):
+    """The dashboard calls this once it has shown the 'new milestones' badge."""
+    from sqlalchemy import update
+
+    await db.execute(
+        update(Milestone)
+        .where(Milestone.user_id == user.id, Milestone.notified.is_(False))
+        .values(notified=True)
+    )
+    await db.commit()
 
 
 @router.get("/leaderboard")

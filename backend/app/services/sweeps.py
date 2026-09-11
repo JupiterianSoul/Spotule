@@ -182,11 +182,7 @@ async def sweep_automations(db: AsyncSession, max_jobs: int = 50) -> SweepResult
     result = SweepResult()
     now = datetime.now(UTC)
     jobs = list(
-        (
-            await db.execute(
-                select(AutomationJob).where(AutomationJob.enabled.is_(True)).limit(max_jobs)
-            )
-        )
+        (await db.execute(select(AutomationJob).where(AutomationJob.enabled.is_(True)).limit(max_jobs)))
         .scalars()
         .all()
     )

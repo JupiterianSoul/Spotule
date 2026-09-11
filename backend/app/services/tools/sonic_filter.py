@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import abc
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Literal
 
 import httpx
 from pydantic import BaseModel, Field
@@ -157,3 +157,33 @@ class SonicFilter(Tool):
             "scanned": len(ids),
             "without_features": len(ids) - len(feats),
         }
+
+
+# Ranges chosen to be recognisable rather than clever; users can tune with sonic.filter.
+MOOD_PRESETS: dict[str, dict[str, float]] = {
+    "happy": {"valence_min": 0.6, "energy_min": 0.5},
+    "sad": {"valence_max": 0.35, "energy_max": 0.5},
+    "focus": {"energy_max": 0.5, "acousticness_min": 0.3, "danceability_max": 0.6},
+    "party": {"energy_min": 0.7, "danceability_min": 0.65},
+    "chill": {"energy_max": 0.45, "bpm_max": 110},
+    "workout": {"energy_min": 0.75, "bpm_min": 120},
+}
+
+
+@registry.register
+class MoodPreset(Tool):
+    key = "sonic.mood_preset"
+    pillar = "sonic"
+
+    class Params(BaseModel):
+        mood: Literal["happy", "sad", "focus", "party", "chill", "workout"]
+        source_playlist_id: str | None = Field(None, description="None = Liked Songs")
+        name: str | None = None
+
+    async def run(self, ctx: ToolContext, params: Params) -> dict[str, Any]:
+        inner = SonicFilter.Params(
+            source_playlist_id=params.source_playlist_id,
+            name=params.name or f"{params.mood.title()} · Spotule",
+            **MOOD_PRESETS[params.mood],
+        )
+        return await SonicFilter().run(ctx, inner)

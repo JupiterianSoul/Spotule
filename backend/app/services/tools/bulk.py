@@ -96,3 +96,52 @@ class BulkDedupePlaylist(Tool):
         if removed:
             await ctx.client.replace_items(params.playlist_id, keep)
         return {"removed": removed, "kept": len(keep)}
+
+
+def render_name(template: str, name: str, index: int, count: int) -> str:
+    """Template fields: {name} {index} {count} {date}. Unknown fields are left as-is."""
+    from datetime import UTC, datetime
+
+    class _Safe(dict):
+        def __missing__(self, key):  # keep "{unknown}" literal instead of raising
+            return "{" + key + "}"
+
+    return template.format_map(
+        _Safe(name=name, index=index, count=count, date=datetime.now(UTC).date().isoformat())
+    )[:100]
+
+
+@registry.register
+class BulkRename(Tool):
+    key = "bulk.rename"
+    pillar = "bulk"
+
+    class Params(BaseModel):
+        playlist_ids: list[str] = Field(min_length=1, max_length=500)
+        template: str = Field(..., description="e.g. '{name} · archived {date}' or 'Mix {index}'")
+
+    async def run(self, ctx: ToolContext, params: Params) -> dict[str, Any]:
+        renamed: list[dict[str, str]] = []
+        for i, pid in enumerate(params.playlist_ids, start=1):
+            pl = await ctx.client.playlist(pid)
+            new_name = render_name(params.template, pl["name"], i, len(params.playlist_ids))
+            await ctx.client.change_playlist_details(pid, name=new_name)
+            renamed.append({"id": pid, "from": pl["name"], "to": new_name})
+            ctx.report_progress(int(100 * i / len(params.playlist_ids)))
+        return {"renamed": renamed}
+
+
+@registry.register
+class BulkSetVisibility(Tool):
+    key = "bulk.set_visibility"
+    pillar = "bulk"
+
+    class Params(BaseModel):
+        playlist_ids: list[str] = Field(min_length=1, max_length=500)
+        public: bool
+
+    async def run(self, ctx: ToolContext, params: Params) -> dict[str, Any]:
+        for i, pid in enumerate(params.playlist_ids, start=1):
+            await ctx.client.change_playlist_details(pid, public=params.public)
+            ctx.report_progress(int(100 * i / len(params.playlist_ids)))
+        return {"updated": len(params.playlist_ids), "public": params.public}

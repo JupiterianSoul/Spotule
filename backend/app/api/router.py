@@ -5,6 +5,7 @@ from app.api.v1 import (
     automations,
     banhammer,
     cron,
+    friends,
     imports,
     me,
     playlists,
@@ -23,5 +24,6 @@ for r in (
     tools.router,
     automations.router,
     cron.router,
+    friends.router,
 ):
     api_router.include_router(r)

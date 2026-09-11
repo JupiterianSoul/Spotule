@@ -18,9 +18,7 @@ from app.services.spotify import SpotifyClient
 from app.services.tools.base import ToolContext, registry
 
 
-async def execute_tool_run(
-    db: AsyncSession, client: SpotifyClient, user: User, run: ToolRun
-) -> ToolRun:
+async def execute_tool_run(db: AsyncSession, client: SpotifyClient, user: User, run: ToolRun) -> ToolRun:
     tool_cls = registry.get(run.tool_key)
     tool = tool_cls()
     params = tool_cls.Params.model_validate(run.params)
@@ -55,9 +53,7 @@ async def execute_tool_run(
                 run.backup_id = backup.id
             await db.commit()
 
-        ctx = ToolContext(
-            db=db, client=client, user=user, run_id=str(run.id), report_progress=progress
-        )
+        ctx = ToolContext(db=db, client=client, user=user, run_id=str(run.id), report_progress=progress)
         run.result = await tool.run(ctx, params)
         run.status = JobStatus.succeeded
         run.progress = 100

@@ -7,8 +7,13 @@ from httpx import ASGITransport, AsyncClient
 from app.core.config import settings
 from app.main import app
 
-ENDPOINTS = ["/api/v1/cron/run", "/api/v1/cron/ingest", "/api/v1/cron/catalog",
-             "/api/v1/cron/milestones", "/api/v1/cron/automations"]
+ENDPOINTS = [
+    "/api/v1/cron/run",
+    "/api/v1/cron/ingest",
+    "/api/v1/cron/catalog",
+    "/api/v1/cron/milestones",
+    "/api/v1/cron/automations",
+]
 
 
 @pytest.fixture

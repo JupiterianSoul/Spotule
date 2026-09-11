@@ -65,6 +65,58 @@
     "backup.liked_songs": {
       "title": "Liked Songs Backup",
       "description": "Snapshot every track in your Liked Songs so a purge can be undone."
+    },
+    "playlist.reverse": {
+      "title": "Reverse",
+      "description": "Flip a playlist's order end to end."
+    },
+    "playlist.sort": {
+      "title": "Sort",
+      "description": "Order by date added, name, artist, album, duration, release year or popularity."
+    },
+    "playlist.copy": {
+      "title": "Copy",
+      "description": "Duplicate a playlist you don't own so you can edit it."
+    },
+    "playlist.set_ops": {
+      "title": "Compare two playlists",
+      "description": "A minus B, A and B, or A plus B, into a new playlist."
+    },
+    "playlist.prune_unavailable": {
+      "title": "Remove greyed-out tracks",
+      "description": "Drop tracks that are no longer playable in your region."
+    },
+    "playlist.subtract_liked": {
+      "title": "Remove already-liked",
+      "description": "Take out every track that is already in your Liked Songs."
+    },
+    "playlist.export": {
+      "title": "Export",
+      "description": "List every track with artist, album, ISRC and date added."
+    },
+    "bulk.rename": {
+      "title": "Mass rename",
+      "description": "Rename many playlists with a template like '{name} · {date}'."
+    },
+    "bulk.set_visibility": {
+      "title": "Mass public/private",
+      "description": "Make many playlists public or private at once."
+    },
+    "library.monthly_best_of": {
+      "title": "Monthly best-of",
+      "description": "Your most played tracks of any month, from your full history."
+    },
+    "library.forgotten": {
+      "title": "Forgotten favourites",
+      "description": "Songs you played a lot and then stopped. Spotify can't tell you this."
+    },
+    "library.liked_to_playlist": {
+      "title": "Mirror Liked Songs",
+      "description": "Copy Liked Songs into a shareable playlist, newest or oldest first."
+    },
+    "sonic.mood_preset": {
+      "title": "Mood playlist",
+      "description": "Happy, sad, focus, party, chill or workout — one click, tuned sonic ranges."
     }
   },
   "milestones": {
@@ -74,5 +126,13 @@
     "track_streams": "{entity} played {value} times",
     "unique_artists": "{value} different artists",
     "unique_tracks": "{value} different tracks"
+  },
+  "friends": {
+    "target_required": "Give a user id or a Spotify username.",
+    "not_found": "No one on Spotule matches that.",
+    "not_yourself": "You cannot add yourself.",
+    "blocked": "That person is not accepting requests.",
+    "already_friends": "You are already friends.",
+    "already_requested": "Request already sent."
   }
 }

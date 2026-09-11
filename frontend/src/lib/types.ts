@@ -16,7 +16,7 @@ export interface TopArtist { id: string; name: string; image_url: string | null;
 export interface TopAlbum { id: string; name: string; image_url: string | null; artist: string | null; streams: number; minutes: number }
 export interface TopGenre { name: string; weighted_streams: number; streams: number }
 export interface Clock { timezone: string; grid: number[][]; minutes: number[][]; by_hour: number[]; by_weekday: number[]; peak_hour: number; peak_weekday: number }
-export interface Milestone { id: string; kind: string; threshold: number; entity_id: string; entity_name: string | null; achieved_at: string; value: number }
+export interface Milestone { id: string; kind: string; threshold: number; entity_id: string; entity_name: string | null; achieved_at: string; value: number; new: boolean }
 export interface LeaderboardRow { rank: number; user_id: string; display_name: string | null; avatar_url: string | null; value: number; is_me: boolean }
 
 export interface BannedGenre { id: string; pattern: string; match_mode: "contains" | "exact" | "regex"; apply_skip_guard: boolean; apply_library_purge: boolean; is_active: boolean; note: string | null; created_at: string }
@@ -28,3 +28,6 @@ export interface JobRef { run_id: string; status: string; tool_key: string | nul
 export interface ImportJob { id: string; filename: string; status: string; files_total: number; files_done: number; rows_total: number; rows_inserted: number; rows_skipped_duplicate: number; rows_skipped_invalid: number; earliest: string | null; latest: string | null; error: string | null; created_at: string }
 export interface Automation { id: string; kind: string; cron: string; enabled: boolean; config: Record<string, unknown>; last_run_at: string | null; next_run_at: string | null }
 export interface PlaylistSummary { id: string; name: string; owner: string; is_owner: boolean; public: boolean | null; tracks: number; image: string | null }
+
+export interface Person { user_id: string; display_name: string | null; avatar_url: string | null; spotify_id: string; shares_stats: boolean }
+export interface FriendLink { link_id: string; person: Person; status: "pending" | "accepted" | "blocked"; direction: "outgoing" | "incoming" | "mutual" }

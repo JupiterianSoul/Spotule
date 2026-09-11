@@ -56,11 +56,11 @@ Every tool row lives in `backend/app/services/tools/` and is exposed automatical
 | 36 | Hourly rollups for O(1) clocks | `models/stream.py::StreamHourlyRollup` | ✅ |
 | 37 | Milestones: total minutes / streams thresholds | `analytics/milestones.py` | ✅ |
 | 38 | Milestones: artist ×N, unique artists/tracks | `analytics/milestones.py` | ✅ |
-| 39 | Milestone toasts / notifications | `milestones.notified` | 🧩 |
+| 39 | New-milestone badge on the dashboard, cleared once seen | `POST /stats/milestones/seen`, dashboard chip | ✅ |
 | 40 | Listening streak (consecutive days) | `MilestoneKind.listening_streak_days` | 🧩 |
 | 41 | Friends leaderboard query (opt-in) | `analytics/leaderboard.py` | ✅ |
 | 42 | Global leaderboard (opt-in) | same | ✅ |
-| 43 | **Friend requests (send/accept/list)** — model and leaderboard query exist, but there is no API or UI to add a friend, so the friends leaderboard is empty in practice | `models/user.py::FriendLink` | 📝 **blocking #41** |
+| 43 | Friend requests: search by name or Spotify username, send, accept, decline, remove; crossed requests auto-accept | `api/v1/friends.py`, `/friends` page | ✅ |
 | 44 | Stats cache (Redis, 10 min) | `api/v1/stats.py::_cached` | ✅ |
 | 45 | "Where I listen from" (context: playlist/album/radio) | `streams.context_uri` | 🧩 |
 | 46 | Platform split (android/ios/desktop/web) | `streams.platform` | 🧩 |
@@ -136,22 +136,22 @@ Every tool row lives in `backend/app/services/tools/` and is exposed automatical
 | 104 | JSON-schema-driven tool forms | `features/tools/ToolRunner.tsx` | ✅ |
 | 105 | Audio Porter — Apple Music URL scraper | `porter.apple_url` | 📝 |
 | 106 | Audio Porter — YouTube Music URL | `porter.ytmusic_url` | 📝 |
-| 107 | Bulk make public/private | `bulk.set_visibility` | 📝 |
-| 108 | Bulk rename with template | `bulk.rename` | 📝 |
+| 107 | Bulk make public/private | `bulk.set_visibility` | ✅ |
+| 108 | Bulk rename with template ({name} {index} {count} {date}) | `bulk.rename` | ✅ |
 | 109 | Bulk cover art upload | `bulk.cover_art` | 📝 |
-| 110 | Sort playlist by date added / BPM / energy / release year | `playlist.sort` | 📝 |
-| 111 | Reverse playlist | `playlist.reverse` | 📝 |
-| 112 | Remove unavailable/greyed-out tracks | `playlist.prune_unavailable` | 📝 |
-| 113 | Remove tracks already in Liked Songs | `playlist.subtract_liked` | 📝 |
-| 114 | Playlist diff (A − B, A ∩ B) | `playlist.set_ops` | 📝 |
-| 115 | Copy playlist (fork) | `playlist.copy` | 📝 |
-| 116 | Liked Songs → playlist mirror (auto-sync) | `library.liked_to_playlist` | 📝 |
-| 117 | Monthly "Best of" from stream ledger | `library.monthly_best_of` | 📝 |
-| 118 | "Forgotten favourites" (not played in 12 m) | `library.forgotten` | 📝 |
+| 110 | Sort playlist by date added, name, artist, album, duration, release year, popularity | `playlist.sort` | ✅ |
+| 111 | Reverse playlist | `playlist.reverse` | ✅ |
+| 112 | Remove unavailable/greyed-out tracks | `playlist.prune_unavailable` | ✅ |
+| 113 | Remove tracks already in Liked Songs | `playlist.subtract_liked` | ✅ |
+| 114 | Playlist set operations (A − B, A ∩ B, A ∪ B) | `playlist.set_ops` | ✅ |
+| 115 | Copy playlist (fork) | `playlist.copy` | ✅ |
+| 116 | Liked Songs → playlist mirror (newest or oldest first, updates in place) | `library.liked_to_playlist` | ✅ |
+| 117 | Monthly "Best of" from stream ledger | `library.monthly_best_of` | ✅ |
+| 118 | "Forgotten favourites" (≥N plays, silent for M months) | `library.forgotten` | ✅ |
 | 119 | Compactor: cap playlist to N, archive overflow | `playlist.compact` | 📝 |
 | 120 | Weekly listening report e-mail (localised) | `AutomationKind.weekly_report` | 📝 |
-| 121 | Mood playlists from audio features (happy/sad/focus) | `sonic.mood_preset` | 📝 |
+| 121 | Mood playlists (happy, sad, focus, party, chill, workout) | `sonic.mood_preset` | ✅ |
 | 122 | Tempo ladder for running (BPM ramp) | `sonic.bpm_ladder` | 📝 |
 | 123 | Snapshot diff viewer (what changed in Discover Weekly) | `playlist_backups` | 📝 |
-| 124 | Export playlist to CSV/M3U | `playlist.export` | 📝 |
+| 124 | Export playlist rows (uri, name, artists, album, duration, added, ISRC) | `playlist.export` | ✅ |
 | 125 | Import CSV/M3U → playlist | `porter.csv` | 📝 |

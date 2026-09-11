@@ -120,8 +120,7 @@ class BackupPlaylist(Tool):
             uris = [r[0] for r in rows.all() if r[0]]
             capture = "shadow"
 
-        return await _store_backup(ctx, params.kind, playlist_id, name, uris, params.materialize,
-                                   capture)
+        return await _store_backup(ctx, params.kind, playlist_id, name, uris, params.materialize, capture)
 
 
 @registry.register
@@ -139,12 +138,18 @@ class BackupLikedSongs(Tool):
             async for item in ctx.client.saved_tracks()
             if item.get("track") and item["track"].get("uri")
         ]
-        return await _store_backup(ctx, params.kind, None, "Liked Songs", uris,
-                                   params.materialize, "api")
+        return await _store_backup(ctx, params.kind, None, "Liked Songs", uris, params.materialize, "api")
 
 
-async def _store_backup(ctx: ToolContext, kind: BackupKind, source_playlist_id: str | None,
-                        name: str, uris: list[str], materialize: bool, capture: str) -> dict[str, Any]:
+async def _store_backup(
+    ctx: ToolContext,
+    kind: BackupKind,
+    source_playlist_id: str | None,
+    name: str,
+    uris: list[str],
+    materialize: bool,
+    capture: str,
+) -> dict[str, Any]:
     label = week_label()
     backup = PlaylistBackup(
         user_id=ctx.user.id,
@@ -157,9 +162,7 @@ async def _store_backup(ctx: ToolContext, kind: BackupKind, source_playlist_id: 
         meta={"capture": capture},
     )
     if materialize and uris:
-        new = await ctx.client.create_playlist(
-            ctx.user.spotify_id, f"{name} · {label}", "Backup by Spotule"
-        )
+        new = await ctx.client.create_playlist(ctx.user.spotify_id, f"{name} · {label}", "Backup by Spotule")
         await ctx.client.add_items(new["id"], uris)
         backup.materialized_playlist_id = new["id"]
     ctx.db.add(backup)
@@ -192,8 +195,6 @@ class RestoreBackup(Tool):
         if params.target_playlist_id:
             await ctx.client.replace_items(params.target_playlist_id, backup.track_uris)
             return {"playlist_id": params.target_playlist_id, "tracks": backup.track_count}
-        new = await ctx.client.create_playlist(
-            ctx.user.spotify_id, f"{backup.source_name} (restored)"
-        )
+        new = await ctx.client.create_playlist(ctx.user.spotify_id, f"{backup.source_name} (restored)")
         await ctx.client.add_items(new["id"], backup.track_uris)
         return {"playlist_id": new["id"], "tracks": backup.track_count}

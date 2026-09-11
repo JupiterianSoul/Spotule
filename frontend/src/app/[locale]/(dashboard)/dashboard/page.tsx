@@ -1,6 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useQueryClient } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 import { Page } from "@/components/ui/Page";
 import { StatTile } from "@/components/widgets/StatTile";
 import { TopList } from "@/components/widgets/TopList";
@@ -23,6 +25,14 @@ export default function DashboardPage() {
   const genres = useApi<TopGenre[]>(["top", "genres"], "/api/v1/stats/top/genres", { ...q, limit: 8 });
   const clock = useApi<Clock>(["clock"], "/api/v1/stats/clock", q);
   const milestones = useApi<Milestone[]>(["milestones"], "/api/v1/stats/milestones", { limit: 5 });
+  const tm = useTranslations("milestones");
+  const qc = useQueryClient();
+  const newCount = milestones.data?.filter((m) => m.new).length ?? 0;
+  useEffect(() => {
+    // Show the badge once, then tell the server so it does not reappear on the next visit.
+    if (newCount > 0) api("/api/v1/stats/milestones/seen", { method: "POST" }).then(() => qc.invalidateQueries({ queryKey: ["milestones"] })).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newCount]);
 
   return (
     <Page title={t("title")}>
@@ -36,6 +46,7 @@ export default function DashboardPage() {
       <div className="flex flex-wrap gap-2 text-xs">
         <span className="chip">{t("guardStatus")}: {me?.preferences.skip_guard_enabled ? t("guardOn") : t("guardOff")}</span>
         <span className="chip">{t("loggerStatus")}: {me?.preferences.stream_logger_enabled ? t("guardOn") : t("guardOff")}</span>
+        {newCount > 0 && <span className="chip bg-warning/20 text-warning">🏆 {tm("new", { count: newCount })}</span>}
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <TopList title={t("topTracks")} loading={tracks.isLoading}
