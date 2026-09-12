@@ -61,6 +61,8 @@ services:
     plan: free
     dockerfilePath: ./frontend/Dockerfile
     dockerContext: ./frontend
+    # Without this Render reports the service Live while it silently 502s.
+    healthCheckPath: /healthz
     envVars:
       - key: NODE_ENV
         value: production
