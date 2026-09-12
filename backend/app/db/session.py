@@ -20,7 +20,6 @@ from typing import Any
 from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy.pool import NullPool
 
 from app.core.config import settings
 
@@ -80,11 +79,20 @@ def build_async_engine():
             "DATABASE_URL_SYNC is the one that takes a sync driver."
         )
     pooled = looks_pooled(settings.database_url, settings.db_pooler_mode)
-    kwargs: dict[str, Any] = {"pool_pre_ping": True}
+    kwargs: dict[str, Any] = {
+        "pool_pre_ping": True,
+        # Managed poolers drop idle connections silently; recycling first avoids paying a
+        # failed round trip to discover it.
+        "pool_recycle": 300,
+    }
     if pooled:
-        # The external pooler already multiplexes; a second pool on top adds idle
-        # connections that count against a free tier's small connection budget.
-        kwargs["poolclass"] = NullPool
+        # Deliberately still a pool. A hosted pooler sits across a TLS connection, so opening
+        # one costs a handshake measured in seconds, and NullPool paid that on every single
+        # session: a bare SELECT 1 took ~2.6s in production and a full sweep took minutes.
+        # Session-mode poolers give each connection its own backend, so reuse is exactly what
+        # they want. Kept small because a free tier's connection budget is not generous.
+        kwargs["pool_size"] = 5
+        kwargs["max_overflow"] = 5
         kwargs["connect_args"] = _pooler_connect_args(driver)
     else:
         kwargs["pool_size"] = 10
@@ -95,11 +103,9 @@ def build_sync_engine():
     # psycopg (used by Alembic and the Celery workers) is unaffected by the prepared-statement
     # problem, but still should not hold a pool open behind an external pooler.
     pooled = looks_pooled(settings.database_url_sync, settings.db_pooler_mode)
-    kwargs: dict[str, Any] = {"pool_pre_ping": True}
-    if pooled:
-        kwargs["poolclass"] = NullPool
-    else:
-        kwargs["pool_size"] = 5
+    kwargs: dict[str, Any] = {"pool_pre_ping": True, "pool_recycle": 300}
+    # Same reasoning as the async engine: reuse the connection rather than re-handshake.
+    kwargs["pool_size"] = 3 if pooled else 5
     return create_engine(settings.database_url_sync, **kwargs)
 
 

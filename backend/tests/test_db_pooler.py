@@ -82,3 +82,21 @@ def test_pooler_options_are_driver_specific():
     assert psycopg_args == {"prepare_threshold": None}
     # An unknown driver gets nothing rather than someone else's options.
     assert _pooler_connect_args("") == {}
+
+
+def test_pooled_urls_still_get_a_real_pool():
+    """Regression: pooled URLs used NullPool, so every session re-handshaked TLS to the
+    managed pooler. A bare SELECT 1 took ~2.6s in production and a sweep took minutes."""
+    from sqlalchemy.pool import NullPool
+
+    from app.core.config import settings
+    from app.db.session import build_async_engine
+
+    original = settings.db_pooler_mode
+    settings.db_pooler_mode = "on"
+    try:
+        engine = build_async_engine()
+        assert not isinstance(engine.pool, NullPool)
+        assert engine.pool.size() > 0
+    finally:
+        settings.db_pooler_mode = original
