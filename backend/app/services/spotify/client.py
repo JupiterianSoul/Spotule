@@ -17,10 +17,25 @@ from app.services.spotify.rate_limiter import SpotifyRateLimiter
 
 
 class SpotifyAPIError(Exception):
-    def __init__(self, status: int, message: str, retry_after: float | None = None):
-        super().__init__(f"Spotify {status}: {message}")
+    """A Spotify error, carrying the request that caused it.
+
+    Spotify's own message is often a single word — a bare "Forbidden" says nothing about
+    which call was refused, and these errors are read in a scheduler log where the request
+    is not otherwise visible. Naming the endpoint is the difference between a fact and a
+    guess.
+    """
+
+    def __init__(
+        self,
+        status: int,
+        message: str,
+        retry_after: float | None = None,
+        request: str | None = None,
+    ):
+        super().__init__(f"Spotify {status}{f' on {request}' if request else ''}: {message}")
         self.status = status
         self.retry_after = retry_after
+        self.request = request
 
 
 class SpotifyTransientError(SpotifyAPIError):
@@ -73,9 +88,9 @@ class SpotifyClient:
         if resp.status_code == 429:
             retry_after = float(resp.headers.get("Retry-After", "5"))
             await self._limiter.throttle(retry_after)
-            raise SpotifyTransientError(429, "rate limited", retry_after)
+            raise SpotifyTransientError(429, "rate limited", retry_after, f"{method} {path}")
         if resp.status_code >= 500:
-            raise SpotifyTransientError(resp.status_code, resp.text[:200])
+            raise SpotifyTransientError(resp.status_code, resp.text[:200], None, f"{method} {path}")
         if resp.status_code == 204 or not resp.content:
             return None
         if resp.status_code >= 400:
@@ -83,7 +98,7 @@ class SpotifyClient:
                 msg = resp.json().get("error", {}).get("message", resp.text[:200])
             except ValueError:
                 msg = resp.text[:200]
-            raise SpotifyAPIError(resp.status_code, msg)
+            raise SpotifyAPIError(resp.status_code, msg, None, f"{method} {path}")
         return resp.json()
 
     async def get(self, path: str, **params: Any) -> Any:

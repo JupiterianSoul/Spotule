@@ -74,3 +74,52 @@ async def test_milestones_keep_going_after_a_rollback(two_logging_users, monkeyp
 
     assert len(seen) >= 2, seen
     assert result.failed == len(seen)
+
+
+@pytest.mark.asyncio
+async def test_catalogue_moves_on_to_another_account(two_logging_users, monkeypatch):
+    """Catalogue rows are shared, so one refused account must not stop hydration for all.
+
+    Production hit exactly this: an account Spotify answered 403 for was chosen for the
+    catalogue stage, and hydration failed for everyone on every sweep.
+    """
+    from app.services.spotify import SpotifyAPIError
+
+    attempts: list[str] = []
+
+    class FakeClient:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *_exc):
+            return False
+
+    async def refused(_db, user):
+        attempts.append(user.spotify_id)
+        if len(attempts) == 1:
+            raise SpotifyAPIError(403, "Forbidden", None, "GET /artists")
+        return FakeClient()
+
+    async def no_artists_pending(_db, _client, _limit):
+        return 0
+
+    monkeypatch.setattr(sweeps, "_client_for", refused)
+    monkeypatch.setattr(sweeps, "hydrate_missing_artists", no_artists_pending)
+
+    async with AsyncSessionLocal() as db:
+        result = await sweeps.sweep_catalog(db)
+
+    assert len(attempts) == 2, attempts
+    assert result.processed == 1
+    assert result.failed == 0
+
+
+def test_a_spotify_error_names_the_request_that_caused_it():
+    """Spotify's own message is often one word; "Forbidden" alone is not actionable."""
+    from app.services.spotify import SpotifyAPIError
+
+    exc = SpotifyAPIError(403, "Forbidden", None, "GET /artists")
+    assert str(exc) == "Spotify 403 on GET /artists: Forbidden"
+    assert exc.status == 403
+    # Callers that predate the field must still work.
+    assert str(SpotifyAPIError(404, "Not found")) == "Spotify 404: Not found"

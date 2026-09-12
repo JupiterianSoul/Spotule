@@ -43,6 +43,9 @@ from app.services.tools.runner import execute_tool_run
 
 log = get_logger("sweeps")
 
+# How many linked accounts to try before reporting catalogue hydration as failed.
+CATALOG_ACCOUNT_ATTEMPTS = 5
+
 # Which tool each automation kind runs, and the params it defaults to.
 AUTOMATION_TOOLS: dict[str, tuple[str, dict]] = {
     "backup_discover_weekly": ("backup.playlist", {"kind": BackupKind.discover_weekly.value}),
@@ -120,38 +123,46 @@ async def sweep_recently_played(db: AsyncSession, max_users: int = 100) -> Sweep
 
 
 async def sweep_catalog(db: AsyncSession, artist_limit: int = 500, track_limit: int = 200) -> SweepResult:
-    """Hydrate artist genres and the tracks referenced only by URI from an import."""
-    result = SweepResult()
-    users = await _active_users(db, 1)
-    if not users:
-        return result
-    try:
-        client = await _client_for(db, users[0])
-        if client is None:
-            return result
-        async with client:
-            # Catalogue rows are shared, so any linked account's token can fetch them.
-            result.detail["artists_hydrated"] = await hydrate_missing_artists(db, client, artist_limit)
+    """Hydrate artist genres and the tracks referenced only by URI from an import.
 
-            rows = await db.execute(
-                select(func.split_part(Stream.spotify_track_uri, ":", 3))
-                .where(
-                    Stream.track_id.is_(None),
-                    Stream.spotify_track_uri.like("spotify:track:%"),
+    Catalogue rows are shared between everyone, so any linked account's token can fetch them
+    — and that cuts both ways: betting the whole stage on one arbitrarily chosen account
+    meant a single account Spotify refuses stopped catalogue hydration for every user, every
+    sweep, forever. It tries each account in turn and stops at the first that works.
+    """
+    result = SweepResult()
+    last_error: str | None = None
+    for user in await _active_users(db, CATALOG_ACCOUNT_ATTEMPTS):
+        try:
+            client = await _client_for(db, user)
+            if client is None:
+                continue
+            async with client:
+                result.detail["artists_hydrated"] = await hydrate_missing_artists(db, client, artist_limit)
+
+                rows = await db.execute(
+                    select(func.split_part(Stream.spotify_track_uri, ":", 3))
+                    .where(
+                        Stream.track_id.is_(None),
+                        Stream.spotify_track_uri.like("spotify:track:%"),
+                    )
+                    .distinct()
+                    .limit(track_limit)
                 )
-                .distinct()
-                .limit(track_limit)
-            )
-            track_ids = [r[0] for r in rows.all() if r[0]]
-            if track_ids:
-                await upsert_tracks(db, await client.tracks(track_ids))
-            await db.commit()
-            result.detail["tracks_hydrated"] = len(track_ids)
-        result.processed = 1
-    except Exception as exc:  # noqa: BLE001
-        await db.rollback()
+                track_ids = [r[0] for r in rows.all() if r[0]]
+                if track_ids:
+                    await upsert_tracks(db, await client.tracks(track_ids))
+                await db.commit()
+                result.detail["tracks_hydrated"] = len(track_ids)
+            result.processed = 1
+            return result
+        except Exception as exc:  # noqa: BLE001 — try the next account before giving up
+            await db.rollback()
+            last_error = redact(f"{user.spotify_id}: {exc}", 200)
+            log.warning("sweep.catalog.account_failed", user=str(user.id), error=str(exc))
+    if last_error is not None:
         result.failed = 1
-        result.errors.append(redact(str(exc), 200))
+        result.errors.append(last_error)
     return result
 
 
