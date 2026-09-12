@@ -28,3 +28,27 @@ def test_mode_overrides_detection():
     assert looks_pooled(LOCAL, "on") is True
     assert looks_pooled(SUPABASE_POOLER, "off") is False
     assert looks_pooled(SUPABASE_POOLER, "auto") is True
+
+
+def test_alembic_accepts_percent_encoded_passwords():
+    """Regression: alembic writes the URL into a configparser ini, where "%" begins an
+    interpolation token. A percent-encoded password aborted every migration on deploy."""
+    from alembic.config import Config
+
+    url = "postgresql+psycopg://u:Galp%21Sll2sp%21@h.pooler.supabase.com:5432/postgres"
+    cfg = Config()
+    cfg.set_main_option("sqlalchemy.url", url.replace("%", "%%"))
+    # configparser unescapes on read, so the engine still receives the original string.
+    assert cfg.get_main_option("sqlalchemy.url") == url
+
+
+def test_settings_strip_whitespace_from_pasted_values(monkeypatch):
+    """A stray space from a dashboard paste made SQLAlchemy reject the URL with a parse
+    error naming no cause."""
+    from app.core.config import Settings
+
+    monkeypatch.setenv("DATABASE_URL_SYNC", "  postgresql+psycopg://u:p@h:5432/db\n")
+    monkeypatch.setenv("SPOTIFY_CLIENT_SECRET", " secret ")
+    s = Settings()
+    assert s.database_url_sync == "postgresql+psycopg://u:p@h:5432/db"
+    assert s.spotify_client_secret == "secret"

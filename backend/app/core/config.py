@@ -75,6 +75,29 @@ class Settings(BaseSettings):
     default_locale: str = "en"
     supported_locales: tuple[str, ...] = ("en", "fr")
 
+    # Values pasted into a hosting dashboard often arrive with a stray leading or trailing
+    # space, which makes SQLAlchemy reject the URL outright with a parse error that names no
+    # cause. Whitespace is never meaningful in any of these, so drop it.
+    @field_validator(
+        "database_url",
+        "database_url_sync",
+        "redis_url",
+        "celery_broker_url",
+        "celery_result_backend",
+        "spotify_client_id",
+        "spotify_client_secret",
+        "spotify_redirect_uri",
+        "web_base_url",
+        "api_base_url",
+        "secret_key",
+        "token_encryption_key",
+        "cron_secret",
+        mode="before",
+    )
+    @classmethod
+    def _strip(cls, v: str | None) -> str | None:
+        return v.strip() if isinstance(v, str) else v
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def _split_origins(cls, v: str | list[str]) -> list[str]:
