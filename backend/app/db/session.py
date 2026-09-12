@@ -38,26 +38,54 @@ def looks_pooled(url: str, mode: str = "auto") -> bool:
     return any(hint in lowered for hint in POOLER_HINTS)
 
 
-def _pooler_connect_args() -> dict[str, Any]:
-    return {
-        # asyncpg: never cache prepared statements, the pooler may move us to another backend.
-        "statement_cache_size": 0,
-        # SQLAlchemy keeps its own cache of asyncpg prepared statements; the line above only
-        # disables asyncpg's. Both are needed behind PgBouncer or Supavisor.
-        "prepared_statement_cache_size": 0,
-        # Unique names stop two clients sharing a backend from colliding.
-        "prepared_statement_name_func": lambda: f"__sp_{uuid.uuid4().hex}",
-    }
+def _driver_of(url: str) -> str:
+    """The DBAPI SQLAlchemy will use, e.g. "asyncpg" or "psycopg"."""
+    from sqlalchemy.engine import make_url
+
+    try:
+        name = make_url(url).drivername
+    except Exception:  # noqa: BLE001
+        return ""
+    return name.split("+", 1)[1] if "+" in name else ""
+
+
+# Connection options that stop prepared statements breaking behind a pooler. They are
+# driver-specific: passing asyncpg's options to psycopg fails the connection outright with
+# 'invalid connection option "statement_cache_size"', which surfaces only on the first query.
+def _pooler_connect_args(driver: str) -> dict[str, Any]:
+    if driver == "asyncpg":
+        return {
+            # Never cache prepared statements; the pooler may move us to another backend.
+            "statement_cache_size": 0,
+            # SQLAlchemy keeps a second cache of its own, so both must be disabled.
+            "prepared_statement_cache_size": 0,
+            # Unique names stop two clients sharing a backend from colliding.
+            "prepared_statement_name_func": lambda: f"__sp_{uuid.uuid4().hex}",
+        }
+    if driver.startswith("psycopg"):
+        # psycopg3's equivalent: never promote a statement to a server-side prepared one.
+        return {"prepare_threshold": None}
+    return {}
+
+
+ASYNC_DRIVERS = ("asyncpg", "psycopg")
 
 
 def build_async_engine():
+    driver = _driver_of(settings.database_url)
+    if driver not in ASYNC_DRIVERS:
+        raise RuntimeError(
+            "DATABASE_URL must name an async driver, for example "
+            f"postgresql+asyncpg://… or postgresql+psycopg://… (got {driver or 'none'!r}). "
+            "DATABASE_URL_SYNC is the one that takes a sync driver."
+        )
     pooled = looks_pooled(settings.database_url, settings.db_pooler_mode)
     kwargs: dict[str, Any] = {"pool_pre_ping": True}
     if pooled:
         # The external pooler already multiplexes; a second pool on top adds idle
         # connections that count against a free tier's small connection budget.
         kwargs["poolclass"] = NullPool
-        kwargs["connect_args"] = _pooler_connect_args()
+        kwargs["connect_args"] = _pooler_connect_args(driver)
     else:
         kwargs["pool_size"] = 10
     return create_async_engine(settings.database_url, **kwargs)

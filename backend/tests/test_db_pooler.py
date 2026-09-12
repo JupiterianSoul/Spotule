@@ -52,3 +52,33 @@ def test_settings_strip_whitespace_from_pasted_values(monkeypatch):
     s = Settings()
     assert s.database_url_sync == "postgresql+psycopg://u:p@h:5432/db"
     assert s.spotify_client_secret == "secret"
+
+
+@pytest.mark.parametrize(
+    "url,driver",
+    [
+        ("postgresql+asyncpg://u:p@h/db", "asyncpg"),
+        ("postgresql+psycopg://u:p@h/db", "psycopg"),
+        ("postgresql://u:p@h/db", ""),
+    ],
+)
+def test_driver_detection(url, driver):
+    from app.db.session import _driver_of
+
+    assert _driver_of(url) == driver
+
+
+def test_pooler_options_are_driver_specific():
+    """Regression: asyncpg's options were sent to psycopg, which rejects the connection with
+    'invalid connection option "statement_cache_size"' on the first query rather than at
+    startup, so it looked like a login bug."""
+    from app.db.session import _pooler_connect_args
+
+    asyncpg_args = _pooler_connect_args("asyncpg")
+    psycopg_args = _pooler_connect_args("psycopg")
+
+    assert "statement_cache_size" in asyncpg_args
+    assert "statement_cache_size" not in psycopg_args
+    assert psycopg_args == {"prepare_threshold": None}
+    # An unknown driver gets nothing rather than someone else's options.
+    assert _pooler_connect_args("") == {}
