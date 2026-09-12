@@ -78,13 +78,7 @@ async def test_milestones_keep_going_after_a_rollback(two_logging_users, monkeyp
 
 @pytest.mark.asyncio
 async def test_catalogue_moves_on_to_another_account(two_logging_users, monkeypatch):
-    """Catalogue rows are shared, so one refused account must not stop hydration for all.
-
-    Production hit exactly this: an account Spotify answered 403 for was chosen for the
-    catalogue stage, and hydration failed for everyone on every sweep.
-    """
-    from app.services.spotify import SpotifyAPIError
-
+    """Catalogue rows are shared, so one dead grant must not stop hydration for all."""
     attempts: list[str] = []
 
     class FakeClient:
@@ -94,24 +88,69 @@ async def test_catalogue_moves_on_to_another_account(two_logging_users, monkeypa
         async def __aexit__(self, *_exc):
             return False
 
-    async def refused(_db, user):
+    async def first_account_is_dead(_db, user):
         attempts.append(user.spotify_id)
         if len(attempts) == 1:
-            raise SpotifyAPIError(403, "Forbidden", None, "GET /artists")
+            raise RuntimeError("refresh_token revoked")
         return FakeClient()
 
-    async def no_artists_pending(_db, _client, _limit):
+    async def nothing_pending(*_a):
         return 0
 
-    monkeypatch.setattr(sweeps, "_client_for", refused)
-    monkeypatch.setattr(sweeps, "hydrate_missing_artists", no_artists_pending)
+    monkeypatch.setattr(sweeps, "_client_for", first_account_is_dead)
+    monkeypatch.setattr(sweeps, "hydrate_missing_artists", nothing_pending)
+    monkeypatch.setattr(sweeps, "hydrate_orphan_tracks", nothing_pending)
 
     async with AsyncSessionLocal() as db:
         result = await sweeps.sweep_catalog(db)
 
     assert len(attempts) == 2, attempts
     assert result.processed == 1
-    assert result.failed == 0
+    # The dead account is still reported — it is a real problem, just not a fatal one.
+    assert any("refresh_token revoked" in err for err in result.errors)
+
+
+@pytest.mark.asyncio
+async def test_a_refused_endpoint_does_not_cost_the_other_half(two_logging_users, monkeypatch):
+    """Production hit 403 on GET /artists, which stopped the track hydration behind it.
+
+    The two halves fail for different reasons — a dead grant fails both, an endpoint the
+    application is refused fails one — so neither may depend on the other.
+    """
+    from app.services.spotify import SpotifyAPIError
+
+    accounts: list[str] = []
+
+    class FakeClient:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *_exc):
+            return False
+
+    async def usable(_db, user):
+        accounts.append(user.spotify_id)
+        return FakeClient()
+
+    async def refused(*_a):
+        raise SpotifyAPIError(403, "Forbidden", None, "GET /artists")
+
+    async def works(*_a):
+        return 7
+
+    monkeypatch.setattr(sweeps, "_client_for", usable)
+    monkeypatch.setattr(sweeps, "hydrate_missing_artists", refused)
+    monkeypatch.setattr(sweeps, "hydrate_orphan_tracks", works)
+
+    async with AsyncSessionLocal() as db:
+        result = await sweeps.sweep_catalog(db)
+
+    assert result.detail["tracks_hydrated"] == 7
+    assert result.failed == 1
+    assert any("GET /artists" in err for err in result.errors)
+    # An endpoint refused for the application answers no differently for another account,
+    # so the sweep must not walk the whole list hoping otherwise.
+    assert len(accounts) == 1, accounts
 
 
 def test_a_spotify_error_names_the_request_that_caused_it():
