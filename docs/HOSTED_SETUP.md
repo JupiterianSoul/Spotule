@@ -129,6 +129,12 @@ several hours of listening.
 **The 60-day rule.** On a public repository, GitHub disables scheduled workflows after 60 days
 with no commits. Push anything, or press Run workflow, to re-arm them.
 
+**Keep the repository public, or widen the schedule.** Public repositories get unlimited Actions
+minutes, so sweeping every five minutes is free. Private ones get 2,000 minutes a month, and
+this schedule would bill about 8,700, because every run rounds up to a whole minute. If you make
+the repository private, change the cron in `.github/workflows/scheduler.yml` to `*/30 * * * *`,
+or drive the sweep from a free external pinger instead.
+
 **Supabase pausing.** Free projects pause after about a week with no queries. The scheduler's
 sweeps keep yours active.
 

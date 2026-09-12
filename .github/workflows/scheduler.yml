@@ -9,6 +9,12 @@
 #   SPOTULE_URL     https://your-app.example.com   (no trailing slash)
 #   SPOTULE_CRON_SECRET   the same value as CRON_SECRET in your server environment
 #
+# Cost: this repository is public, so Actions minutes are free and unlimited and a
+# five-minute schedule costs nothing. If you ever make the repository PRIVATE, the free
+# allowance is 2,000 minutes a month while this schedule bills roughly 8,700 (every run is
+# rounded up to a whole minute). Widen the interval to "*/30 * * * *" or move the sweep to an
+# external pinger such as cron-job.org or a Cloudflare cron trigger.
+#
 # Two things to know about GitHub's scheduler:
 #   * five minutes is the minimum interval, and runs are best-effort — under load they can
 #     be delayed by 10+ minutes. Spotify keeps your last 50 plays, which is several hours of
