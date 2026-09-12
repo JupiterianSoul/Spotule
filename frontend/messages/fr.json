@@ -98,7 +98,9 @@
     "guardOff": "Désactivée",
     "loggerStatus": "Enregistreur d'écoutes",
     "lastSync": "Dernière synchro {time}",
-    "viewAll": "Tout voir"
+    "viewAll": "Tout voir",
+    "loggerOff": "Vos écoutes ne sont pas enregistrées. Réactivez l'enregistreur, sinon cette période sera définitivement perdue.",
+    "loggerOffCta": "Ouvrir les paramètres"
   },
   "stats": {
     "title": "Statistiques",

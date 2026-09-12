@@ -98,7 +98,9 @@
     "guardOff": "Off",
     "loggerStatus": "Stream logger",
     "lastSync": "Last sync {time}",
-    "viewAll": "View all"
+    "viewAll": "View all",
+    "loggerOff": "Your listening is not being recorded. Turn the stream logger back on, or this time is lost for good.",
+    "loggerOffCta": "Open settings"
   },
   "stats": {
     "title": "Stats",

@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { Link } from "@/i18n/navigation";
+import { AlertTriangle } from "lucide-react";
 import { Page } from "@/components/ui/Page";
 import { StatTile } from "@/components/widgets/StatTile";
 import { TopList } from "@/components/widgets/TopList";
@@ -36,6 +38,15 @@ export default function DashboardPage() {
 
   return (
     <Page title={t("title")}>
+      {me && !me.preferences.stream_logger_enabled && (
+        // Silent data loss otherwise: Spotify only keeps the last 50 plays, so every hour
+        // this stays off is history that can never be recovered.
+        <div className="flex flex-wrap items-center gap-3 rounded-card border border-warning/40 bg-warning/10 px-4 py-3">
+          <AlertTriangle className="h-5 w-5 shrink-0 text-warning" />
+          <p className="flex-1 text-sm text-warning">{t("loggerOff")}</p>
+          <Link href="/settings" className="btn-primary py-1">{t("loggerOffCta")}</Link>
+        </div>
+      )}
       <TimeframePicker value={tf} onChange={setTf} />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <StatTile label={t("minutesListened")} value={fmtMinutes(locale, overview.data?.minutes ?? 0)} loading={overview.isLoading} />
