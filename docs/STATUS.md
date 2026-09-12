@@ -3,7 +3,8 @@
 What actually works, what is half-built, and what has never run against real Spotify
 credentials. Kept separate from the feature matrix so it stays blunt.
 
-Last updated alongside the commit that added the friends feature and the tools batch.
+Last updated after the first live deployment: Render + Supabase + Upstash, signed in with a
+real Spotify account, sweeps driven by GitHub Actions.
 
 ## Verified working
 
@@ -34,32 +35,60 @@ Covered by automated tests, or exercised against live local servers.
 
 - **Skip guard on free hosting.** Works in principle and the code is complete, but it needs a
   process that never sleeps, so it cannot run on the Render free tier. The toggle stays off.
+  Note this is the one pillar the cron-based scheduler cannot substitute for.
 - **Web Playback SDK bridge.** The backend endpoint exists; the browser-side listener that
   would give the skip guard near-zero latency does not.
 - **Artist and track drill-down pages.** Listed in the matrix, not built.
 - About twenty-five tools in the matrix still marked 📝, mostly URL scrapers for the Audio
   Porter, cover-art upload and the weekly e-mail report (which needs an SMTP provider).
 
-## Never run against real Spotify
+## Live behaviour, confirmed against real Spotify
 
-Everything that calls the Spotify Web API has been written against the documented shapes and
-exercised with stub data, but no request has been made with a real token. Expect the first live
-run to surface small mismatches. The most likely places, in rough order:
+The deployment is up and signed in with a real account. What the live runs settled:
 
-1. Field shapes in playlist item responses, where Spotify's `fields=` masks are fussy.
-2. The audio-features fallback chain, since Spotify returns 403 for apps created after
-   2024-11-27 and the alternate provider's response shape is assumed, not observed.
-3. Discover Weekly and Release Radar access, which is restricted for new apps. The name-based
-   resolver and the shadow-capture fallback are both written for this, but which path actually
-   runs depends on your app's quota mode.
-4. Rate-limit behaviour under a real multi-user load.
+- **Play logging works.** `/me/player/recently-played` is polled every five minutes and plays
+  are stored. Getting there took four bugs, each hiding the next: sweep stages sharing one
+  failure path, an error handler that crashed inside itself reading an expired ORM attribute
+  after its own rollback, an upsert that Postgres refused because the feed returns one entry
+  per *play* so a repeat put the same id in `VALUES` twice, and `rowcount` returning -1 on
+  psycopg for multi-row inserts.
+- **`GET /artists` is refused: 403 Forbidden.** Six well-formed ids, limit fifty, on the token
+  that ingests that same account's plays in the same sweep; the ids check out as real artists
+  against Spotify's public oEmbed. This is a restriction on the *application*, not the account
+  or the request — nothing in this codebase lifts it. See below for what does.
+- **Genres arrive anyway.** `/me/top/artists` and `/me/following` return full artist objects
+  with genres and are user-data endpoints, which this app is allowed. 177 artists hydrated on
+  the first fallback run. It covers what you listen to and follow — the set the Ban-Hammer
+  needs — and not the rest of the catalogue.
 
-None of these are structural. They are the kind of thing a first live run finds and a small
-fix resolves.
+## Needs Extended Quota Mode
+
+Spotify grants development-mode apps a reduced surface. These stay limited until the app is
+approved, and no amount of code changes that:
+
+- Artist genres for anything outside your own top artists and follows (`GET /artists`).
+- Audio features, and therefore the sonic filters and mood presets, for apps created after
+  2024-11-27. The alternate provider chain exists but its response shape is assumed.
+- Discover Weekly and Release Radar, which are not readable for new apps. The name-based
+  resolver and shadow-capture fallback are written for this; which path runs depends on quota.
+- More than 25 users, which is the development-mode cap.
+
+## Still unexercised against real Spotify
+
+Written against the documented shapes and tested with stub data, but not yet run live:
+
+- The twenty-five playlist and library tools. Pure logic is tested; the Spotify calls are not.
+  Playlist item responses are the likeliest mismatch, where `fields=` masks are fussy.
+- The extended-history ZIP importer against a real export (tested on real export payloads, but
+  never end to end through the live deployment).
+- Rate-limit behaviour under real multi-user load.
 
 ## Known non-issues
 
-- The `docker compose` files and Dockerfiles have not been built, because this project was
-  developed in a sandbox with the Docker CLI but no daemon. Dependency completeness was checked
-  by comparing every import against the manifest instead, which caught one package that was
-  only present transitively.
+- The `docker compose` files have not been built locally, because this project was developed
+  in a sandbox with the Docker CLI but no daemon. The Dockerfiles themselves are no longer
+  unverified: Render builds both of them on every deploy.
+- `streams_inserted: 0` on a sweep is normal. The cursor only asks for plays newer than the
+  last one stored, so a run with nothing new to fetch is a working run, not a broken one.
+- `artists_source: "listening (cached)"` is also normal. Top artists and follows are re-read
+  every six hours, not every five minutes.
