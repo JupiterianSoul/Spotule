@@ -25,8 +25,19 @@ bad()  { printf '  \033[31m✗\033[0m %s\n' "$1"; [ -n "${2:-}" ] && printf '   
 note() { printf '  \033[33m!\033[0m %s\n' "$1"; warn=$((warn+1)); }
 head_() { printf '\n\033[1m%s\033[0m\n' "$1"; }
 
-# curl with a long timeout: free hosts cold-start slowly on the first request.
-get()  { curl -sS --max-time 120 -o /tmp/smoke.body -w '%{http_code}' "$@" 2>/tmp/smoke.err; }
+# A sleeping free service answers 502/503 immediately rather than making the caller wait, so a
+# long timeout alone is not enough: the first probe has to be retried until the container wakes.
+get() {
+  local code
+  for attempt in 1 2 3 4 5; do
+    code=$(curl -sS --max-time 120 -o /tmp/smoke.body -w '%{http_code}' "$@" 2>/tmp/smoke.err)
+    case "$code" in
+      502|503|000) sleep $((attempt * 5)) ;;
+      *) printf '%s' "$code"; return ;;
+    esac
+  done
+  printf '%s' "$code"
+}
 
 head_ "Reachability  ($WEB)"
 code=$(get "$WEB/healthz")
