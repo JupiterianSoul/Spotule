@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from app.api.router import api_router
 from app.core.config import settings
 from app.core.logging import configure_logging, get_logger
+from app.core.security import redact
 from app.db.redis import get_redis
 
 log = get_logger()
@@ -75,6 +76,7 @@ async def readyz() -> JSONResponse:
     except Exception as exc:  # noqa: BLE001
         checks["database"] = False
         checks["database_error"] = type(exc).__name__
+        checks["database_detail"] = redact(str(exc))
 
     # Migrations applied? A reachable but empty database fails only once someone signs in.
     if checks.get("database"):

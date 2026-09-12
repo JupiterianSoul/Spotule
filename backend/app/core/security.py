@@ -53,3 +53,37 @@ def new_session_id() -> str:
 
 def new_oauth_state() -> str:
     return secrets.token_urlsafe(32)
+
+
+def redact(message: str, limit: int = 400) -> str:
+    """Strip anything secret out of an exception message.
+
+    Connection errors quote the DSN, so the raw text can carry a password. This replaces every
+    known secret (and the user/host from each URL) before the message is shown anywhere public.
+    """
+    from sqlalchemy.engine import make_url
+
+    from app.core.config import settings
+
+    hide: set[str] = set()
+    for url in (settings.database_url, settings.database_url_sync, settings.redis_url):
+        try:
+            parsed = make_url(url)
+            hide.update(str(p) for p in (parsed.password, parsed.username, parsed.host) if p)
+        except Exception:  # noqa: BLE001 — a malformed URL is exactly when we still need this
+            pass
+    hide.update(
+        v
+        for v in (
+            settings.spotify_client_secret,
+            settings.token_encryption_key,
+            settings.secret_key,
+            settings.cron_secret,
+        )
+        if v
+    )
+    out = message
+    for secret in sorted(hide, key=len, reverse=True):
+        if len(secret) > 2:
+            out = out.replace(secret, "***")
+    return out[:limit]

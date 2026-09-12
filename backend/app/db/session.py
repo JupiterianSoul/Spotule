@@ -42,6 +42,9 @@ def _pooler_connect_args() -> dict[str, Any]:
     return {
         # asyncpg: never cache prepared statements, the pooler may move us to another backend.
         "statement_cache_size": 0,
+        # SQLAlchemy keeps its own cache of asyncpg prepared statements; the line above only
+        # disables asyncpg's. Both are needed behind PgBouncer or Supavisor.
+        "prepared_statement_cache_size": 0,
         # Unique names stop two clients sharing a backend from colliding.
         "prepared_statement_name_func": lambda: f"__sp_{uuid.uuid4().hex}",
     }
