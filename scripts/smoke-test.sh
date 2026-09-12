@@ -54,6 +54,14 @@ else
 fi
 
 head_ "Dependencies the API needs (database, schema, Redis, encryption)"
+sha=$(curl -sS --max-time 60 "$API/healthz" 2>/dev/null \
+      | python3 -c "import json,sys;print(json.load(sys.stdin).get('commit',''))" 2>/dev/null)
+if [ -n "$sha" ]; then
+  ok "API is running commit $sha"
+  echo "      Compare with: git rev-parse --short HEAD"
+else
+  note "the API did not report a commit; it predates the build marker or the host does not set one"
+fi
 code=$(get "$API/readyz")
 if [ "$code" = "200" ]; then
   ok "database, schema, Redis and token encryption all usable"

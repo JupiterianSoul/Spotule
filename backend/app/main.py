@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -40,9 +41,15 @@ app.add_middleware(
 app.include_router(api_router)
 
 
+# Render exports this automatically; other hosts can set it themselves. Without it there is no
+# way to tell from outside whether a push has actually reached the running container, which
+# turns "is my fix live yet?" into guesswork every single deploy.
+BUILD_COMMIT = (os.getenv("RENDER_GIT_COMMIT") or os.getenv("GIT_COMMIT") or "")[:7]
+
+
 @app.get("/healthz", include_in_schema=False)
 async def healthz(request: Request):
-    return {"ok": True, "env": settings.app_env}
+    return {"ok": True, "env": settings.app_env, "commit": BUILD_COMMIT}
 
 
 @app.get("/readyz", include_in_schema=False)
