@@ -22,6 +22,27 @@ def _img(obj: dict | None) -> str | None:
     return images[0]["url"] if images else None
 
 
+def dedupe_by_id(payloads: list[dict]) -> list[dict]:
+    """One entry per Spotify id, keeping the fullest payload.
+
+    Postgres refuses an ON CONFLICT DO UPDATE whose own VALUES list names the same key twice
+    ("cannot affect row a second time"), and these payloads routinely repeat: the
+    recently-played feed returns one entry per *play*, so replaying a track inside a single
+    poll window was enough to fail that user's entire ingestion — which is exactly what it
+    did in production, silently, for hours.
+
+    Endpoints also disagree on how much they return for the same object: a simplified track
+    carries no popularity and no ISRC, while /tracks does. When an id appears more than once
+    the payload with more fields wins, so mixing sources never downgrades what we store.
+    """
+    best: dict[str, dict] = {}
+    for item in payloads:
+        held = best.get(item["id"])
+        if held is None or len(item) >= len(held):
+            best[item["id"]] = item
+    return list(best.values())
+
+
 async def upsert_genres(db: AsyncSession, names: set[str]) -> dict[str, int]:
     names = {n.strip().lower() for n in names if n and n.strip()}
     if not names:
@@ -34,6 +55,8 @@ async def upsert_genres(db: AsyncSession, names: set[str]) -> dict[str, int]:
 
 async def upsert_artists(db: AsyncSession, payloads: list[dict]) -> None:
     """Full artist objects (with genres) from /artists."""
+    # /artists answers with a null in place of any id it does not recognise.
+    payloads = dedupe_by_id([a for a in payloads if a and a.get("id")])
     if not payloads:
         return
     now = datetime.now(UTC)
@@ -84,7 +107,9 @@ async def upsert_artists(db: AsyncSession, payloads: list[dict]) -> None:
 
 async def upsert_tracks(db: AsyncSession, payloads: list[dict]) -> None:
     """Simplified or full track objects (from recently-played, playlist items, /tracks)."""
-    payloads = [t for t in payloads if t and t.get("id") and t.get("type", "track") == "track"]
+    payloads = dedupe_by_id(
+        [t for t in payloads if t and t.get("id") and t.get("type", "track") == "track"]
+    )
     if not payloads:
         return
     now = datetime.now(UTC)
@@ -152,14 +177,14 @@ async def upsert_tracks(db: AsyncSession, payloads: list[dict]) -> None:
             },
         )
     )
-    links = [
-        {"track_id": t["id"], "artist_id": a["id"], "position": i}
+    links = {
+        (t["id"], a["id"]): {"track_id": t["id"], "artist_id": a["id"], "position": i}
         for t in payloads
         for i, a in enumerate(t.get("artists", []))
         if a.get("id")
-    ]
+    }
     if links:
-        await db.execute(insert(TrackArtist).values(links).on_conflict_do_nothing())
+        await db.execute(insert(TrackArtist).values(list(links.values())).on_conflict_do_nothing())
 
 
 async def hydrate_missing_artists(db: AsyncSession, client: SpotifyClient, limit: int = 500) -> int:
