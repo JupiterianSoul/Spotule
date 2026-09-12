@@ -1,11 +1,12 @@
 "use client";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Page } from "@/components/ui/Page";
 import { Toggle } from "@/components/ui/Toggle";
 import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher";
 import { useRouter } from "@/i18n/navigation";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
 import { useMe } from "@/lib/hooks";
 import type { Me } from "@/lib/types";
 
@@ -14,14 +15,19 @@ export default function SettingsPage() {
   const qc = useQueryClient();
   const router = useRouter();
   const { data: me } = useMe();
+  const tc = useTranslations("common");
+  const [error, setError] = useState<string | null>(null);
   const patch = useMutation({
     mutationFn: (body: Partial<Me["preferences"]>) => api("/api/v1/me/preferences", { method: "PATCH", body }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["me"] }),
+    onSuccess: () => { setError(null); qc.invalidateQueries({ queryKey: ["me"] }); },
+    // Without this a failed save looked identical to a toggle that simply did not respond.
+    onError: (e) => setError(e instanceof ApiError ? e.message : tc("error")),
   });
   const del = useMutation({ mutationFn: () => api("/api/v1/me", { method: "DELETE" }), onSuccess: () => { qc.clear(); router.push("/"); } });
   const p = me?.preferences;
   return (
     <Page title={t("title")}>
+      {error && <p className="rounded-md bg-danger/15 px-3 py-2 text-sm text-danger">{error}</p>}
       <section className="card space-y-3">
         <div className="flex items-center justify-between"><span className="text-sm">{t("language")}</span><LocaleSwitcher persist /></div>
         <label className="block text-sm">
