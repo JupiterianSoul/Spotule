@@ -35,7 +35,7 @@ from app.models import (
 )
 from app.models.enums import BackupKind, StreamSource
 from app.services.analytics.milestones import detect_milestones
-from app.services.catalog import hydrate_missing_artists, upsert_tracks
+from app.services.catalog import hydrate_artists, upsert_tracks
 from app.services.ingest.recently_played import ingest_recently_played
 from app.services.spotify import SpotifyClient
 from app.services.spotify.auth import get_valid_access_token
@@ -58,7 +58,9 @@ AUTOMATION_TOOLS: dict[str, tuple[str, dict]] = {
 class SweepResult:
     processed: int = 0
     failed: int = 0
-    detail: dict[str, int] = field(default_factory=dict)
+    # Mostly counts, plus the occasional label — the artist half reports which route
+    # Spotify allowed it to take.
+    detail: dict[str, int | str] = field(default_factory=dict)
     errors: list[str] = field(default_factory=list)
 
     def as_dict(self) -> dict:
@@ -165,14 +167,19 @@ async def sweep_catalog(db: AsyncSession, artist_limit: int = 500, track_limit: 
             continue
 
         halves = (
-            ("artists", lambda c: hydrate_missing_artists(db, c, artist_limit)),
+            ("artists", lambda c: hydrate_artists(db, c, artist_limit)),
             ("tracks", lambda c: hydrate_orphan_tracks(db, c, track_limit)),
         )
         succeeded = 0
         async with client:
             for name, work in halves:
                 try:
-                    result.detail[f"{name}_hydrated"] = await work(client)
+                    outcome = await work(client)
+                    # The artist half reports which route Spotify allowed it to use.
+                    if isinstance(outcome, dict):
+                        result.detail.update(outcome)
+                    else:
+                        result.detail[f"{name}_hydrated"] = outcome
                     await db.commit()
                     succeeded += 1
                 except Exception as exc:  # noqa: BLE001

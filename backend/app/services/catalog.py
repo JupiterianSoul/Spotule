@@ -10,11 +10,19 @@ from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.logging import get_logger
 from app.db.redis import Keys, get_redis
 from app.models import Album, Artist, ArtistGenre, Genre, Track, TrackArtist
 from app.services.spotify import SpotifyAPIError, SpotifyClient
 
+log = get_logger("catalog")
+
 ARTIST_CACHE_TTL = 7 * 24 * 3600
+# How long to stop asking after Spotify refuses catalogue lookups to this application.
+CATALOGUE_COOLDOWN = 3600
+# Top artists and followed artists change slowly; there is nothing to gain from re-reading
+# them on every five-minute sweep.
+HARVEST_COOLDOWN = 6 * 3600
 
 
 def _img(obj: dict | None) -> str | None:
@@ -203,6 +211,66 @@ async def hydrate_missing_artists(db: AsyncSession, client: SpotifyClient, limit
         exc.args = (f"{exc.args[0]} [sent {len(ids)} ids: {', '.join(ids[:4])}]",)
         raise
     return len(ids)
+
+
+async def harvest_artist_genres(db: AsyncSession, client: SpotifyClient, max_followed: int = 1000) -> int:
+    """Genres from one user's own listening, for when catalogue lookups are refused.
+
+    /me/top/artists and /me/following return *full* artist objects — genres included — and
+    they are user-data endpoints, the category Spotify still answers for this application
+    while it refuses GET /artists outright. The artists they cover are the ones that actually
+    matter here: the ones this user listens to and follows, which is exactly the set the
+    Ban-Hammer has to classify.
+
+    It is not a replacement for the catalogue endpoint. Anything the user neither plays often
+    nor follows stays unhydrated, and the real fix is Extended Quota Mode on the Spotify app.
+    """
+    found: dict[str, dict] = {}
+    for time_range in ("short_term", "medium_term", "long_term"):
+        data = await client.top_items("artists", time_range=time_range, limit=50)
+        for artist in data.get("items", []):
+            if artist and artist.get("id"):
+                found[artist["id"]] = artist
+    async for artist in client.followed_artists():
+        if artist and artist.get("id"):
+            found[artist["id"]] = artist
+        if len(found) >= max_followed:
+            break  # a heavily following account would otherwise page for a long time
+    if found:
+        await upsert_artists(db, list(found.values()))
+    return len(found)
+
+
+async def hydrate_artists(db: AsyncSession, client: SpotifyClient, limit: int = 500) -> dict:
+    """Genres for artists we only know by name, whichever route Spotify allows.
+
+    Production reported `Spotify 403 on GET /artists: Forbidden` for an account that was
+    ingesting its plays successfully in the same sweep, sending six well-formed ids against
+    a limit of fifty. Valid token, valid request, refused anyway — that is a restriction on
+    the application, not something a retry or another account can fix.
+
+    So the catalogue route is tried first and, once refused, left alone for an hour rather
+    than spending a request every five minutes to be told the same thing. Meanwhile genres
+    keep arriving through the user-data endpoints, which are not restricted.
+    """
+    r = get_redis()
+    if not await r.get(Keys.CATALOGUE_RESTRICTED):
+        try:
+            hydrated = await hydrate_missing_artists(db, client, limit)
+            return {"artists_hydrated": hydrated, "artists_source": "catalogue"}
+        except SpotifyAPIError as exc:
+            if exc.status != 403:
+                raise
+            await r.set(Keys.CATALOGUE_RESTRICTED, "1", ex=CATALOGUE_COOLDOWN)
+            log.warning("catalog.restricted", error=str(exc))
+            # Reported once, then degraded quietly until the cooldown lapses.
+            raise
+    if await r.get(Keys.GENRES_HARVESTED):
+        # Top artists and follows move slowly; re-reading them every sweep buys nothing.
+        return {"artists_hydrated": 0, "artists_source": "listening (cached)"}
+    harvested = await harvest_artist_genres(db, client)
+    await r.set(Keys.GENRES_HARVESTED, "1", ex=HARVEST_COOLDOWN)
+    return {"artists_hydrated": harvested, "artists_source": "listening"}
 
 
 async def artist_genres_cached(artist_ids: list[str]) -> dict[str, list[str]]:

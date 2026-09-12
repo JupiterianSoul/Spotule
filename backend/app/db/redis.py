@@ -6,6 +6,8 @@ Key namespaces (all prefixed so a single Redis can be shared safely):
   spotify:ratelimit:<bucket>    → token bucket counters
   spotify:retry_after           → epoch until which the app is throttled (429 Retry-After)
   cache:artist:<id>             → JSON artist (genres) (TTL 7d)
+  spotify:catalogue_restricted  → set while Spotify 403s catalogue lookups (TTL 1h)
+  spotify:genres_harvested      → set after a listening-based genre sweep (TTL 6h)
   cache:stats:<user>:<hash>     → JSON computed stats (TTL 10 min)
   guard:<user>:current          → last observed track id + progress (skip guard)
   guard:active                  → set of user ids with guard enabled & recent playback
@@ -54,3 +56,7 @@ class Keys:
 
     GUARD_ACTIVE = "guard:active"
     RETRY_AFTER = "spotify:retry_after"
+    # Set while Spotify refuses catalogue lookups to this application, so the sweep
+    # degrades instead of spending a request every five minutes to be told the same.
+    CATALOGUE_RESTRICTED = "spotify:catalogue_restricted"
+    GENRES_HARVESTED = "spotify:genres_harvested"

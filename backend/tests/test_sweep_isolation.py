@@ -98,7 +98,7 @@ async def test_catalogue_moves_on_to_another_account(two_logging_users, monkeypa
         return 0
 
     monkeypatch.setattr(sweeps, "_client_for", first_account_is_dead)
-    monkeypatch.setattr(sweeps, "hydrate_missing_artists", nothing_pending)
+    monkeypatch.setattr(sweeps, "hydrate_artists", nothing_pending)
     monkeypatch.setattr(sweeps, "hydrate_orphan_tracks", nothing_pending)
 
     async with AsyncSessionLocal() as db:
@@ -139,7 +139,7 @@ async def test_a_refused_endpoint_does_not_cost_the_other_half(two_logging_users
         return 7
 
     monkeypatch.setattr(sweeps, "_client_for", usable)
-    monkeypatch.setattr(sweeps, "hydrate_missing_artists", refused)
+    monkeypatch.setattr(sweeps, "hydrate_artists", refused)
     monkeypatch.setattr(sweeps, "hydrate_orphan_tracks", works)
 
     async with AsyncSessionLocal() as db:
