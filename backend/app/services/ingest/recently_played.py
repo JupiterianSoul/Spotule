@@ -14,6 +14,7 @@ from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.db.counts import inserted_count
 from app.models import Stream, StreamHourlyRollup, SyncCursor, User
 from app.models.enums import StreamSource, SyncKind
 from app.services.catalog import upsert_tracks
@@ -60,8 +61,9 @@ async def ingest_recently_played(db: AsyncSession, client: SpotifyClient, user: 
         }
         for i in items
     ]
-    result = await db.execute(insert(Stream).values(rows).on_conflict_do_nothing())
-    inserted = result.rowcount or 0
+    inserted = inserted_count(
+        await db.execute(insert(Stream).values(rows).on_conflict_do_nothing().returning(Stream.id))
+    )
 
     newest = max(r["played_at"] for r in rows)
     cursor.cursor = str(int(newest.timestamp() * 1000))

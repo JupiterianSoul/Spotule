@@ -24,6 +24,7 @@ from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
+from app.db.counts import inserted_count
 from app.models import ImportJob, Stream
 from app.models.enums import JobStatus, StreamSource
 
@@ -101,9 +102,11 @@ def run_import(db: Session, job: ImportJob) -> None:
         nonlocal batch
         if not batch:
             return
-        res = db.execute(insert(Stream).values(batch).on_conflict_do_nothing())
-        job.rows_inserted += res.rowcount or 0
-        job.rows_skipped_duplicate += len(batch) - (res.rowcount or 0)
+        added = inserted_count(
+            db.execute(insert(Stream).values(batch).on_conflict_do_nothing().returning(Stream.id))
+        )
+        job.rows_inserted += added
+        job.rows_skipped_duplicate += len(batch) - added
         db.commit()
         batch = []
 

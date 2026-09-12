@@ -8,6 +8,7 @@ from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.db.counts import inserted_count
 from app.models import Artist, Milestone, Stream, Track, TrackArtist
 from app.models.enums import MilestoneKind
 from app.services.analytics.top import COUNTS_AS_STREAM
@@ -96,6 +97,10 @@ async def detect_milestones(db: AsyncSession, user_id) -> int:
 
     if not rows:
         return 0
-    res = await db.execute(insert(Milestone).values(rows).on_conflict_do_nothing())
+    awarded = inserted_count(
+        await db.execute(
+            insert(Milestone).values(rows).on_conflict_do_nothing().returning(Milestone.id)
+        )
+    )
     await db.commit()
-    return res.rowcount or 0
+    return awarded
