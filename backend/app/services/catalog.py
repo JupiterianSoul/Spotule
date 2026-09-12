@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.redis import Keys, get_redis
 from app.models import Album, Artist, ArtistGenre, Genre, Track, TrackArtist
-from app.services.spotify import SpotifyClient
+from app.services.spotify import SpotifyAPIError, SpotifyClient
 
 ARTIST_CACHE_TTL = 7 * 24 * 3600
 
@@ -191,8 +191,17 @@ async def hydrate_missing_artists(db: AsyncSession, client: SpotifyClient, limit
     """Fetch full artist objects (genres) for artists we only know by name."""
     rows = await db.execute(select(Artist.id).where(Artist.fetched_at.is_(None)).limit(limit))
     ids = [r[0] for r in rows.all()]
-    if ids:
+    if not ids:
+        return 0
+    try:
         await upsert_artists(db, await client.artists(ids))
+    except SpotifyAPIError as exc:
+        # Say what we asked for. Spotify answers "Forbidden" either way, so the request is
+        # the only thing that separates a restriction on the application from us sending
+        # something malformed. Artist ids are public identifiers, not secrets, and the count
+        # matters too: a batch over Spotify's limit of 50 is a bug on our side.
+        exc.args = (f"{exc.args[0]} [sent {len(ids)} ids: {', '.join(ids[:4])}]",)
+        raise
     return len(ids)
 
 

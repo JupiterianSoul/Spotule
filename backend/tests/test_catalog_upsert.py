@@ -104,3 +104,43 @@ def test_dedupe_tolerates_the_nulls_spotify_returns_for_unknown_ids():
 
     payloads = [a for a in [{"id": "a"}, None, {"id": "a"}] if a and a.get("id")]
     assert dedupe(payloads) == [{"id": "a"}]
+
+
+@pytest.mark.asyncio
+async def test_a_refused_hydration_says_what_it_asked_for(monkeypatch):
+    """Spotify answers "Forbidden" whatever the cause, so the request has to be in the error.
+
+    Production reported `Spotify 403 on GET /artists: Forbidden` for an account that was
+    ingesting plays successfully in the same sweep — the message alone cannot distinguish a
+    restriction on the application from a malformed batch.
+    """
+    from sqlalchemy import select
+
+    from app.models import Artist
+    from app.services.catalog import hydrate_missing_artists
+    from app.services.spotify import SpotifyAPIError
+
+    class Refusing:
+        async def artists(self, _ids):
+            raise SpotifyAPIError(403, "Forbidden", None, "GET /artists")
+
+    async with AsyncSessionLocal() as db:
+        pending = (
+            (await db.execute(select(Artist.id).where(Artist.fetched_at.is_(None)).limit(1)))
+            .scalars()
+            .all()
+        )
+        if not pending:
+            db.add(Artist(id=ARTIST_ID, name="Test Artist"))
+            await db.commit()
+        try:
+            with pytest.raises(SpotifyAPIError) as caught:
+                await hydrate_missing_artists(db, Refusing(), limit=5)
+        finally:
+            await db.execute(delete(Artist).where(Artist.id == ARTIST_ID))
+            await db.commit()
+
+    message = str(caught.value)
+    assert "GET /artists" in message
+    assert "sent " in message and " ids:" in message
+    assert caught.value.status == 403
