@@ -24,6 +24,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
+from app.core.security import redact
 from app.models import (
     AutomationJob,
     SpotifyCredential,
@@ -85,17 +86,20 @@ async def sweep_recently_played(db: AsyncSession, max_users: int = 100) -> Sweep
     result = SweepResult()
     inserted = 0
     for user in await _active_users(db, max_users, logger_only=True):
-        client = await _client_for(db, user)
-        if client is None:
-            continue
         try:
+            # Inside the guard on purpose: this refreshes the Spotify token, so it fails for a
+            # revoked or expired grant. Outside, one stale account returned 500 for the whole
+            # sweep and nothing was ingested for anyone.
+            client = await _client_for(db, user)
+            if client is None:
+                continue
             async with client:
                 inserted += await ingest_recently_played(db, client, user)
             result.processed += 1
         except Exception as exc:  # noqa: BLE001 — one bad account must not stop the sweep
             await db.rollback()
             result.failed += 1
-            result.errors.append(f"{user.spotify_id}: {exc}"[:200])
+            result.errors.append(redact(f"{user.spotify_id}: {exc}", 200))
             log.warning("sweep.recently_played.user_failed", user=str(user.id), error=str(exc))
     result.detail["streams_inserted"] = inserted
     return result
@@ -107,10 +111,10 @@ async def sweep_catalog(db: AsyncSession, artist_limit: int = 500, track_limit: 
     users = await _active_users(db, 1)
     if not users:
         return result
-    client = await _client_for(db, users[0])
-    if client is None:
-        return result
     try:
+        client = await _client_for(db, users[0])
+        if client is None:
+            return result
         async with client:
             # Catalogue rows are shared, so any linked account's token can fetch them.
             result.detail["artists_hydrated"] = await hydrate_missing_artists(db, client, artist_limit)
@@ -133,7 +137,7 @@ async def sweep_catalog(db: AsyncSession, artist_limit: int = 500, track_limit: 
     except Exception as exc:  # noqa: BLE001
         await db.rollback()
         result.failed = 1
-        result.errors.append(str(exc)[:200])
+        result.errors.append(redact(str(exc), 200))
     return result
 
 
@@ -165,7 +169,7 @@ async def sweep_milestones(db: AsyncSession, max_users: int = 100) -> SweepResul
         except Exception as exc:  # noqa: BLE001
             await db.rollback()
             result.failed += 1
-            result.errors.append(str(exc)[:200])
+            result.errors.append(redact(str(exc), 200))
     result.detail["milestones_awarded"] = awarded
     return result
 
@@ -199,7 +203,13 @@ async def sweep_automations(db: AsyncSession, max_jobs: int = 50) -> SweepResult
         user = await db.get(User, job.user_id)
         if user is None:
             continue
-        client = await _client_for(db, user)
+        try:
+            client = await _client_for(db, user)
+        except Exception as exc:  # noqa: BLE001 — a stale grant must not abort the sweep
+            await db.rollback()
+            result.failed += 1
+            result.errors.append(redact(str(exc), 200))
+            continue
         if client is None:
             continue
         run = ToolRun(
@@ -217,23 +227,49 @@ async def sweep_automations(db: AsyncSession, max_jobs: int = 50) -> SweepResult
         except Exception as exc:  # noqa: BLE001
             await db.rollback()
             result.failed += 1
-            result.errors.append(str(exc)[:200])
+            result.errors.append(redact(str(exc), 200))
         job.last_run_at = now
     await db.commit()
     return result
 
 
+async def _stage(db: AsyncSession, name: str, coro) -> dict:
+    """Run one sweep stage, reporting a failure instead of aborting the others.
+
+    The rollback matters as much as the catch: Postgres refuses every statement on a
+    connection whose transaction has already errored, so without it the first broken stage
+    would take all the later ones down with it for a reason unrelated to their own work.
+    """
+    try:
+        return await coro
+    except Exception as exc:  # noqa: BLE001
+        log.exception("sweep.stage_failed", stage=name)
+        try:
+            await db.rollback()
+        except Exception:  # noqa: BLE001 — the session may already be unusable
+            pass
+        return {"processed": 0, "failed": 1, "errors": [redact(str(exc), 300)]}
+
+
 async def sweep_all(db: AsyncSession) -> dict:
-    """Everything a scheduler needs in one call."""
-    ingest = await sweep_recently_played(db)
-    catalog = await sweep_catalog(db)
-    relinked = await relink_imported_streams(db)
-    milestones = await sweep_milestones(db)
-    automations = await sweep_automations(db)
+    """Everything a scheduler needs in one call.
+
+    Stages are independent: ingestion failing must not cost you milestones or backups, and a
+    scheduler that reports which stage broke is far easier to act on than a bare 500.
+    """
+
+    async def _relink() -> dict:
+        return {"processed": 1, "failed": 0, "streams_relinked": await relink_imported_streams(db)}
+
+    async def _as_dict(coro) -> dict:
+        return (await coro).as_dict()
+
+    catalog = await _stage(db, "catalog", _as_dict(sweep_catalog(db)))
+    relinked = await _stage(db, "relink", _relink())
     return {
-        "recently_played": ingest.as_dict(),
-        "catalog": {**catalog.as_dict(), "streams_relinked": relinked},
-        "milestones": milestones.as_dict(),
-        "automations": automations.as_dict(),
+        "recently_played": await _stage(db, "recently_played", _as_dict(sweep_recently_played(db))),
+        "catalog": {**catalog, "streams_relinked": relinked.get("streams_relinked", 0)},
+        "milestones": await _stage(db, "milestones", _as_dict(sweep_milestones(db))),
+        "automations": await _stage(db, "automations", _as_dict(sweep_automations(db))),
         "ran_at": datetime.now(UTC).isoformat(),
     }
