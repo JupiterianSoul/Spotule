@@ -42,6 +42,18 @@ else
   bad "web /healthz returned ${code:-no response}" "$(head -c 200 /tmp/smoke.err)"
 fi
 
+head_ "Dependencies the API needs (database, schema, Redis, encryption)"
+code=$(get "$API/readyz")
+if [ "$code" = "200" ]; then
+  ok "database, schema, Redis and token encryption all usable"
+else
+  bad "the API cannot use one of its dependencies (HTTP ${code:-none})" "$(head -c 240 /tmp/smoke.body)"
+  echo "      false means broken; the *_error field names the exception."
+  echo "      database:false  -> DATABASE_URL wrong, or the host is unreachable"
+  echo "      schema:false    -> migrations did not run against this database"
+  echo "      token_encryption:false -> TOKEN_ENCRYPTION_KEY is not a valid Fernet key"
+fi
+
 head_ "API through the same origin (this is what the browser uses)"
 code=$(get "$WEB/api/v1/tools")
 if [ "$code" = "200" ]; then
