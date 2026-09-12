@@ -20,7 +20,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 
 from croniter import croniter
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
@@ -75,10 +75,24 @@ async def _client_for(db: AsyncSession, user: User) -> SpotifyClient | None:
 
 
 async def _active_users(db: AsyncSession, limit: int, logger_only: bool = False) -> list[User]:
+    """Users to sweep, detached from the session on purpose.
+
+    A rollback expires every instance still attached to the session. The sweeps roll back
+    whenever one user fails, so the users queued behind them would be left needing a silent
+    refresh — and a refresh is IO, which under asyncio raises MissingGreenlet from whatever
+    innocent line happened to touch the attribute. That error then escaped the per-user guard
+    and failed the whole sweep, hiding the original failure completely.
+
+    Every column is loaded here and never written back, so detaching costs nothing and makes
+    the loops immune to what the session does between iterations.
+    """
     q = select(User).join(UserPreference).where(User.is_active.is_(True))
     if logger_only:
         q = q.where(UserPreference.stream_logger_enabled.is_(True))
-    return list((await db.execute(q.limit(limit))).scalars().all())
+    users = list((await db.execute(q.limit(limit))).scalars().all())
+    for user in users:
+        db.expunge(user)
+    return users
 
 
 async def sweep_recently_played(db: AsyncSession, max_users: int = 100) -> SweepResult:
@@ -182,7 +196,13 @@ def automation_is_due(job: AutomationJob, now: datetime) -> bool:
 
 
 async def sweep_automations(db: AsyncSession, max_jobs: int = 50) -> SweepResult:
-    """Fire every due per-user automation and run its tool inline."""
+    """Fire every due per-user automation and run its tool inline.
+
+    Each job gets its own transaction. Sharing one meant a rollback for the job that failed
+    also threw away the bookkeeping of every job already handled, so those would fire again
+    on the next sweep; and it expired the job rows still waiting their turn, which turned the
+    next attribute read into IO that asyncio cannot perform there.
+    """
     result = SweepResult()
     now = datetime.now(UTC)
     jobs = list(
@@ -190,46 +210,66 @@ async def sweep_automations(db: AsyncSession, max_jobs: int = 50) -> SweepResult
         .scalars()
         .all()
     )
-    for job in jobs:
-        if croniter.is_valid(job.cron):
-            job.next_run_at = croniter(job.cron, job.last_run_at or job.created_at).get_next(datetime)
-        if not automation_is_due(job, now):
+    # Everything the loop needs, read out while the rows are certainly loaded.
+    plan = [
+        (
+            job.id,
+            job.user_id,
+            job.kind.value,
+            dict(job.config),
+            automation_is_due(job, now),
+            croniter(job.cron, job.last_run_at or job.created_at).get_next(datetime)
+            if croniter.is_valid(job.cron)
+            else None,
+        )
+        for job in jobs
+    ]
+    for job_id, _user, _kind, _config, _due, next_run in plan:
+        if next_run is not None:
+            await db.execute(
+                update(AutomationJob).where(AutomationJob.id == job_id).values(next_run_at=next_run)
+            )
+    await db.commit()
+
+    async def mark_ran(job_id) -> None:
+        await db.execute(
+            update(AutomationJob).where(AutomationJob.id == job_id).values(last_run_at=now)
+        )
+        await db.commit()
+
+    for job_id, user_id, kind, config, due, _next in plan:
+        if not due:
             continue
-        mapping = AUTOMATION_TOOLS.get(job.kind.value)
+        mapping = AUTOMATION_TOOLS.get(kind)
         if mapping is None:
-            job.last_run_at = now  # nothing wired up yet; don't re-evaluate every minute
+            await mark_ran(job_id)  # nothing wired up yet; don't re-evaluate every minute
             continue
         tool_key, defaults = mapping
-        user = await db.get(User, job.user_id)
-        if user is None:
-            continue
         try:
+            user = await db.get(User, user_id)
+            if user is None:
+                continue
+            # Inside the guard: this refreshes the Spotify token over HTTP, so a stale grant
+            # fails here and must cost only this job.
             client = await _client_for(db, user)
-        except Exception as exc:  # noqa: BLE001 — a stale grant must not abort the sweep
-            await db.rollback()
-            result.failed += 1
-            result.errors.append(redact(str(exc), 200))
-            continue
-        if client is None:
-            continue
-        run = ToolRun(
-            user_id=user.id,
-            automation_job_id=job.id,
-            tool_key=tool_key,
-            params={**defaults, **job.config},
-        )
-        db.add(run)
-        await db.flush()
-        try:
+            if client is None:
+                continue
+            run = ToolRun(
+                user_id=user_id,
+                automation_job_id=job_id,
+                tool_key=tool_key,
+                params={**defaults, **config},
+            )
+            db.add(run)
+            await db.flush()
             async with client:
                 await execute_tool_run(db, client, user, run)
             result.processed += 1
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001 — one job must not stop the rest
             await db.rollback()
             result.failed += 1
             result.errors.append(redact(str(exc), 200))
-        job.last_run_at = now
-    await db.commit()
+        await mark_ran(job_id)
     return result
 
 
